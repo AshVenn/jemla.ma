@@ -61,6 +61,8 @@ interface FormData {
 }
 
 export default function Register(): JSX.Element {
+  const [userExistsError, setUserExistsError] = React.useState<string | null>(null);
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
   });
@@ -68,6 +70,24 @@ export default function Register(): JSX.Element {
   const onSubmit = async (data: FormData) => {
     console.log(data);
     try {
+      // Clear userExistsError state
+      setUserExistsError(null);
+
+      // Check if user already exists
+      const checkUserResponse = await fetch('/api/userExists', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: data.email }),
+      });
+
+      if (checkUserResponse.status === 400) {
+        setUserExistsError('L\'email est déjà pris');
+        return;
+      }
+
+      // Proceed with registration if user does not exist
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: {
@@ -75,7 +95,7 @@ export default function Register(): JSX.Element {
         },
         body: JSON.stringify(data),
       });
-      
+
       if (!response.ok) {
         throw new Error('Erreur lors de l\'inscription');
       }
@@ -206,6 +226,8 @@ export default function Register(): JSX.Element {
                   />
                 </div>
               </div>
+              {/* Display userExistsError message */}
+              <FormMessage>{userExistsError}</FormMessage>
               <Button type="submit" className="w-full">
                 S'inscrire
               </Button>
