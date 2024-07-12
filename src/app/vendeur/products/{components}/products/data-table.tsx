@@ -33,6 +33,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 
+
+import excelExport from '../../../../../lib/export/xlsx';
+import pdfExport from '../../../../../lib/export/pdf';
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
@@ -71,15 +75,18 @@ export function ProductTable<TData, TValue>({
       <div className="grid grid-cols-1 flex-1 overflow-auto">
         <div className="py-4">
           <Input
-            placeholder="Filtrer par prix"
+            placeholder="Filtrer..."
             value={filtering}
             onChange={(event) =>
               setFiltering(event.target.value)
             }
             className="max-w-sm"
           />
-          <Button className="ml-4">
-            Export to Excel
+          <Button onClick={() => excelExport(table.getRowModel().rows.map(row => row.original), columns)} className="ml-4">
+            Excel
+          </Button>
+          <Button onClick={() => pdfExport(table.getRowModel().rows.map(row => row.original), columns)} className="ml-4">
+            PDF
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
