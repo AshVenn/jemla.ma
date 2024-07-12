@@ -4,7 +4,7 @@ import { Inter as FontSans } from "next/font/google"
 import { cn } from "@/lib/utils"
 import VendeurDashboardSidebard from "./dashboard/{components}/VendeurDashboardSidebard";
 import VendeurDashboardNavbar from './dashboard/{components}/VendeurDashboardNavbar';
-
+import AuthProvider from '../Providers'
 
 interface RootLayoutProps {
   children: React.ReactNode;
@@ -13,12 +13,14 @@ interface RootLayoutProps {
 export default function VendeurLayout({ children }: RootLayoutProps) {
   return (
     <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
-        <VendeurDashboardSidebard/>
+      <AuthProvider>
+        <VendeurDashboardSidebard />
         <VendeurDashboardNavbar>
-        <main className='flex flex-col gap-4 p-4 lg:gap-6'>
+          <main className='flex flex-col gap-4 p-4 lg:gap-6'>
             {children}
-        </main>
+          </main>
         </VendeurDashboardNavbar>
+      </AuthProvider>
     </div>
-  )
+  );
 }

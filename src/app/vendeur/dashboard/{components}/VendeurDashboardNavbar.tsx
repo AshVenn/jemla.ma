@@ -1,9 +1,9 @@
+import { AvatarDropdown } from '@/app/{cpnotrouted}/logout'
 import { ModeToggle } from '../../../{cpnotrouted}/mode-toggle'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogClose } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import { SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-// import { UserProfile } from '@/components/user-profile'
 import { HamburgerMenuIcon } from '@radix-ui/react-icons'
 import { LayoutDashboard, Box, ShoppingCart, Settings } from 'lucide-react'
 import Link from 'next/link'
@@ -66,6 +66,7 @@ function VendeurDashboardNavbar({ children }: { children: ReactNode }) {
         <div className="flex justify-center items-center gap-2 ml-auto">
           {/* <UserProfile /> */}
           <ModeToggle />
+          <AvatarDropdown/>
         </div>
       </header>
       {children}

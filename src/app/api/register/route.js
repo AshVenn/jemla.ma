@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import connectMongoDb from '../../../../lib/mongodb';
-import { Utilisateur } from '../../../../backend/models/models';
+import connectMongoDB from "../../../lib/backend/db/mongodb";
+import { Utilisateur } from "../../../lib/backend/models/models";
 
 export async function POST(req) {
   try {
-    await connectMongoDb();
+    await connectMongoDB();
     const data = await req.json();
 
     // Check if the user already exists

@@ -3,6 +3,9 @@ import { Inter as FontSans } from "next/font/google"
 import { ThemeProvider } from "./{cpnotrouted}/theme-provider"
 import { cn } from "@/lib/utils"
 
+import AuthProvider from './Providers'
+import { getServerSession } from 'next-auth';
+
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -12,8 +15,10 @@ interface RootLayoutProps {
   children: React.ReactNode;
 }
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export default async  function RootLayout({ children }: RootLayoutProps) {
+  const session = await  getServerSession()
   return (
+    
     <html lang="en" suppressHydrationWarning>
       <head>
         {/* Ajoutez ici les éléments nécessaires dans le head */}
@@ -22,6 +27,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         "min-h-screen bg-background font-sans antialiased",
         fontSans.variable
       )}>
+        <AuthProvider session={session}>
         <ThemeProvider 
           attribute="class"
           defaultTheme="system"
@@ -30,6 +36,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         >
           {children}
         </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   )

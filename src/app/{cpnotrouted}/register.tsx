@@ -44,6 +44,7 @@ const formSchema = z
       .refine(data => data.startsWith('+212'), {
         message: 'Le numéro de téléphone doit commencer par +212',
       }),
+    picture: z.string().min(1, 'Veuillez sélectionner une image'),
   })
   .refine(data => data.password === data.confirmPassword, {
     path: ['confirmPassword'],
@@ -58,6 +59,7 @@ interface FormData {
   lastName: string;
   firstName: string;
   phoneNumber: string;
+  picture: string; // Store only the path of the image
 }
 
 export default function Register(): JSX.Element {
@@ -221,6 +223,27 @@ export default function Register(): JSX.Element {
                           </SelectContent>
                         </Select>
                         <FormMessage>{form.formState.errors.serviceType?.message}</FormMessage>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="picture"
+                    render={({ field: { value, onChange, ...fieldProps } }) => (
+                      <FormItem>
+                        <FormLabel>Picture</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...fieldProps}
+                            placeholder="Picture"
+                            type="file"
+                            accept="image/*, application/pdf"
+                            onChange={(event) =>
+                              onChange(event.target.files && event.target.files[0])
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage>{form.formState.errors.picture?.message}</FormMessage>
                       </FormItem>
                     )}
                   />
