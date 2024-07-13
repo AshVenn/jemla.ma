@@ -33,7 +33,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 
-
 import excelExport from '../../../../../lib/export/xlsx';
 import pdfExport from '../../../../../lib/export/pdf';
 
@@ -73,45 +72,47 @@ export function ProductTable<TData, TValue>({
   return (
     <div className="rounded-md border flex flex-col h-full overflow-hidden">
       <div className="grid grid-cols-1 flex-1 overflow-auto">
-        <div className="py-4">
+        <div className="py-4 flex items-center justify-between space-x-4">
           <Input
             placeholder="Filtrer..."
             value={filtering}
             onChange={(event) =>
               setFiltering(event.target.value)
             }
-            className="max-w-sm"
+            className="max-w-2/4 mx-2"
           />
-          <Button onClick={() => excelExport(table.getRowModel().rows.map(row => row.original), columns)} className="ml-4">
-            Excel
-          </Button>
-          <Button onClick={() => pdfExport(table.getRowModel().rows.map(row => row.original), columns)} className="ml-4">
-            PDF
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
-                Columns <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex space-x-4">
+            <Button onClick={() => excelExport(table.getRowModel().rows.map(row => row.original), columns)}>
+              Excel
+            </Button>
+            <Button onClick={() => pdfExport(table.getRowModel().rows.map(row => row.original), columns)}>
+              PDF
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  Colonnes <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {table
+                  .getAllColumns()
+                  .filter((column) => column.getCanHide())
+                  .map((column) => (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
         <Table>
           <TableHeader>
@@ -150,7 +151,7 @@ export function ProductTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                  Aucun résultat.
                 </TableCell>
               </TableRow>
             )}
