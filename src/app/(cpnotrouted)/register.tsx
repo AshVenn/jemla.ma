@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import * as React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -32,30 +32,30 @@ import {
 
 const formSchema = z
   .object({
-    email: z.string().email('Adresse e-mail invalide'),
-    password: z.string().min(6, 'Le mot de passe doit comporter au moins 6 caractères'),
-    confirmPassword: z.string().min(6, 'Le mot de passe de confirmation doit comporter au moins 6 caractères'),
-    serviceType: z.string().min(1, 'Veuillez sélectionner un type de service'),
-    lastName: z.string().min(2, 'Nom invalide'),
-    firstName: z.string().min(2, 'Prénom invalide'),
+    email: z.string().email('Invalid email address'),
+    password: z.string().min(6, 'Password must be at least 6 characters'),
+    confirmPassword: z.string().min(6, 'Confirm password must be at least 6 characters'),
+    serviceType: z.string().min(1, 'Please select a service type'),
+    lastName: z.string().min(2, 'Invalid last name'),
+    firstName: z.string().min(2, 'Invalid first name'),
     phoneNumber: z
       .string()
-      .min(10, 'Numéro de téléphone invalide')
+      .min(10, 'Invalid phone number')
       .refine(data => data.startsWith('+212'), {
-        message: 'Le numéro de téléphone doit commencer par +212',
+        message: 'Phone number must start with +212',
       }),
-    picture: z.string().min(1, 'Veuillez sélectionner une image'),
+    picture: z.string().min(1, 'Please select an image'),
   })
   .refine(data => data.password === data.confirmPassword, {
     path: ['confirmPassword'],
-    message: 'Les mots de passe ne correspondent pas',
+    message: 'Passwords do not match',
   });
 
 interface FormData {
   email: string;
   password: string;
   confirmPassword: string;
-  serviceType: 'client' | 'vendeur' | '';
+  serviceType: 'client' | 'seller' | 'admin' | 'courier' |'';
   lastName: string;
   firstName: string;
   phoneNumber: string;
@@ -85,7 +85,7 @@ export default function Register(): JSX.Element {
       });
 
       if (checkUserResponse.status === 400) {
-        setUserExistsError('L\'email est déjà pris');
+        setUserExistsError('Email is already taken');
         return;
       }
 
@@ -99,13 +99,13 @@ export default function Register(): JSX.Element {
       });
 
       if (!response.ok) {
-        throw new Error('Erreur lors de l\'inscription');
+        throw new Error('Error during registration');
       }
 
       const result = await response.json();
       console.log(result);
     } catch (e) {
-      console.error('Erreur lors de l\'envoi du formulaire:', e);
+      console.error('Error submitting form:', e);
     }
   };
 
@@ -113,7 +113,7 @@ export default function Register(): JSX.Element {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <Card className="w-full max-w-md mx-4">
         <CardHeader>
-          <CardTitle>S'inscrire</CardTitle>
+          <CardTitle>Register</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -126,9 +126,9 @@ export default function Register(): JSX.Element {
                     name="lastName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Nom</FormLabel>
+                        <FormLabel>Last Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="Nom" {...field} />
+                          <Input placeholder="Last Name" {...field} />
                         </FormControl>
                         <FormMessage>{form.formState.errors.lastName?.message}</FormMessage>
                       </FormItem>
@@ -139,9 +139,9 @@ export default function Register(): JSX.Element {
                     name="firstName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Prénom</FormLabel>
+                        <FormLabel>First Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="Prénom" {...field} />
+                          <Input placeholder="First Name" {...field} />
                         </FormControl>
                         <FormMessage>{form.formState.errors.firstName?.message}</FormMessage>
                       </FormItem>
@@ -152,9 +152,9 @@ export default function Register(): JSX.Element {
                     name="phoneNumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Numéro de téléphone</FormLabel>
+                        <FormLabel>Phone Number</FormLabel>
                         <FormControl>
-                          <Input placeholder="Numéro de téléphone" {...field} />
+                          <Input placeholder="Phone Number" {...field} />
                         </FormControl>
                         <FormMessage>{form.formState.errors.phoneNumber?.message}</FormMessage>
                       </FormItem>
@@ -182,9 +182,9 @@ export default function Register(): JSX.Element {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Mot de passe</FormLabel>
+                        <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="Mot de passe" {...field} />
+                          <Input type="password" placeholder="Password" {...field} />
                         </FormControl>
                         <FormMessage>{form.formState.errors.password?.message}</FormMessage>
                       </FormItem>
@@ -195,9 +195,9 @@ export default function Register(): JSX.Element {
                     name="confirmPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Confirmer mot de passe</FormLabel>
+                        <FormLabel>Confirm Password</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="Confirmer mot de passe" {...field} />
+                          <Input type="password" placeholder="Confirm Password" {...field} />
                         </FormControl>
                         <FormMessage>{form.formState.errors.confirmPassword?.message}</FormMessage>
                       </FormItem>
@@ -208,17 +208,17 @@ export default function Register(): JSX.Element {
                     name="serviceType"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Type de service</FormLabel>
+                        <FormLabel>Service Type</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger className="w-full md:w-[180px]">
-                              <SelectValue placeholder="Sélectionner un type" />
+                              <SelectValue placeholder="Select a type" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             <SelectGroup>
                               <SelectItem value="client">Client</SelectItem>
-                              <SelectItem value="vendeur">Vendeur</SelectItem>
+                              <SelectItem value="vendeur">Seller</SelectItem>
                             </SelectGroup>
                           </SelectContent>
                         </Select>
@@ -252,14 +252,14 @@ export default function Register(): JSX.Element {
               {/* Display userExistsError message */}
               <FormMessage>{userExistsError}</FormMessage>
               <Button type="submit" className="w-full">
-                S'inscrire
+                Register
               </Button>
             </form>
           </Form>
         </CardContent>
         <CardFooter className="flex justify-between">
           <Link href="/login">
-            Vous avez déjà un compte? Se connecter
+            Already have an account? Log in
           </Link>
         </CardFooter>
       </Card>

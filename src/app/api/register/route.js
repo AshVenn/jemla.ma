@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import connectMongoDB from "../../../lib/backend/db/mongodb";
-import { Utilisateur } from "../../../lib/backend/models/models";
+import connectMongoDB from '../../../lib/backend/db/mongodb';
+import { User } from '../../../lib/backend/models/models';
 
 export async function POST(req) {
   try {
@@ -9,9 +9,9 @@ export async function POST(req) {
     const data = await req.json();
 
     // Check if the user already exists
-    const existingUser = await Utilisateur.findOne({ EmailUtilisateur: data.email });
+    const existingUser = await User.findOne({ email: data.email });
     if (existingUser) {
-      return NextResponse.json({ message: 'L\'utilisateur existe déjà' }, {
+      return NextResponse.json({ message: 'User already exists' }, {
         status: 400,
       });
     }
@@ -20,24 +20,25 @@ export async function POST(req) {
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
     // Create a new user
-    const newUser = new Utilisateur({
-      NomUtilisateur: data.lastName,
-      PrenomUtilisateur: data.firstName,
-      MotDePasseHash: hashedPassword,
-      EmailUtilisateur: data.email,
-      NumeroTelephone: data.phoneNumber,
-      TypeUtilisateur: data.serviceType,
+    const newUser = new User({
+      username: data.lastName,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      passwordHash: hashedPassword,
+      email: data.email,
+      phoneNumber: data.phoneNumber,
+      userType: data.serviceType,
     });
 
     // Save the user to the database
     await newUser.save();
 
-    return NextResponse.json({ message: 'Utilisateur a été inscrit' }, {
+    return NextResponse.json({ message: 'User has been registered' }, {
       status: 201,
     });
   } catch (e) {
     console.log(e);
-    return NextResponse.json({ message: 'Erreur lors de l\'inscription' }, {
+    return NextResponse.json({ message: 'Error during registration' }, {
       status: 500,
     });
   }

@@ -1,5 +1,5 @@
 import connectMongoDB from "@/lib/backend/db/mongodb";
-import { Utilisateur } from "@/lib/backend/models/models";
+import { User } from "@/lib/backend/models/models";
 import bcrypt from "bcryptjs";
 import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -14,30 +14,30 @@ export const authOptions = {
 
         try {
           await connectMongoDB();
-          const utilisateur = await Utilisateur.findOne({ EmailUtilisateur: email });
+          const user = await User.findOne({ email });
 
-          if (!utilisateur) {
-            throw new Error("Utilisateur non trouvé");
+          if (!user) {
+            throw new Error("User not found");
           }
 
-          const passwordsMatch = await bcrypt.compare(password, utilisateur.MotDePasseHash);
+          const passwordsMatch = await bcrypt.compare(password, user.passwordHash);
 
           if (!passwordsMatch) {
-            throw new Error("Mot de passe incorrect");
+            throw new Error("Incorrect password");
           }
 
-          console.log("Utilisateur authentifié:", utilisateur.toObject());
+          console.log("Authenticated user:", user.toObject());
 
           return {
-            id: utilisateur._id,
-            email: utilisateur.EmailUtilisateur,
-            firstName: utilisateur.PrenomUtilisateur,
-            lastName: utilisateur.NomUtilisateur,
-            type: utilisateur.TypeUtilisateur,
-            numeroTelephone: utilisateur.NumeroTelephone,
+            id: user._id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            type: user.userType,
+            phoneNumber: user.phoneNumber,
           };
         } catch (error) {
-          console.error("Erreur d'authentification:", error.message);
+          console.error("Authentication error:", error.message);
           return null;
         }
       },
@@ -55,7 +55,7 @@ export const authOptions = {
         token.firstName = user.firstName;
         token.lastName = user.lastName;
         token.type = user.type;
-        token.numeroTelephone = user.numeroTelephone;
+        token.phoneNumber = user.phoneNumber;
       }
       return token;
     },
@@ -66,7 +66,7 @@ export const authOptions = {
         session.user.firstName = token.firstName;
         session.user.lastName = token.lastName;
         session.user.type = token.type;
-        session.user.numeroTelephone = token.numeroTelephone;
+        session.user.phoneNumber = token.phoneNumber;
       }
       return session;
     },

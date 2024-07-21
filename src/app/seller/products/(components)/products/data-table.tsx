@@ -35,6 +35,7 @@ import { ChevronDown } from "lucide-react";
 
 import excelExport from '../../../../../lib/export/xlsx';
 import pdfExport from '../../../../../lib/export/pdf';
+import AjouterDialog from './add/AddProductDialog';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -71,50 +72,54 @@ export function ProductTable<TData, TValue>({
 
   return (
     <div className="rounded-md border flex flex-col h-full overflow-hidden">
-      <div className="grid grid-cols-1 flex-1 overflow-auto">
-        <div className="py-4 flex items-center justify-between space-x-4">
-          <Input
-            placeholder="Filtrer..."
-            value={filtering}
-            onChange={(event) =>
-              setFiltering(event.target.value)
-            }
-            className="max-w-2/4 mx-2"
-          />
-          <div className="flex space-x-4">
-            <Button onClick={() => excelExport(table.getRowModel().rows.map(row => row.original), columns)}>
-              Excel
-            </Button>
-            <Button onClick={() => pdfExport(table.getRowModel().rows.map(row => row.original), columns)}>
-              PDF
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                  Colonnes <ChevronDown className="ml-2 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {table
-                  .getAllColumns()
-                  .filter((column) => column.getCanHide())
-                  .map((column) => (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+      <div className='overflow-auto'>
+      <div className="py-4 flex items-center justify-between space-x-2">
+        <AjouterDialog/>
+        <div className="flex space-x-1">
+          <Button onClick={() => excelExport(table.getRowModel().rows.map(row => row.original), columns)}>
+            Excel
+          </Button>
+          <Button onClick={() => pdfExport(table.getRowModel().rows.map(row => row.original), columns)}>
+            PDF
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild >
+              <Button variant="outline">
+                Colonnes <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) =>
+                      column.toggleVisibility(!!value)
+                    }
+                  >
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
+                ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        <Table>
+      </div>
+      <div className="py-2">
+        <Input
+          placeholder="Filtrer..."
+          value={filtering}
+          onChange={(event) =>
+            setFiltering(event.target.value)
+          }
+          className="w-full"
+        />
+      </div>
+      <div className="grid grid-cols-1 flex-1 overflow-auto">
+        <Table className="min-w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -181,6 +186,7 @@ export function ProductTable<TData, TValue>({
         >
           Suivant
         </Button>
+      </div>
       </div>
     </div>
   );

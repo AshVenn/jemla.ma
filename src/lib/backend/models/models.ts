@@ -1,136 +1,161 @@
 import mongoose, { Schema } from 'mongoose';
 
-const adresseSchema = new Schema({
-  AdresseID: { type: Schema.Types.ObjectId, auto: true },
-  UtilisateurID: { type: Schema.Types.ObjectId, ref: 'Utilisateur' },
-  LigneAdresse1: { type: String, required: true },
-  LigneAdresse2: { type: String },
-  Ville: { type: String, required: true },
-  Etat: { type: String, required: true },
-  CodePostal: { type: String, required: true },
-  Pays: { type: String, required: true },
+// Address Schema
+const addressSchema = new Schema({
+  addressID: { type: Schema.Types.ObjectId, auto: true },
+  userID: { type: Schema.Types.ObjectId, ref: 'User' },
+  addressLine1: { type: String, required: true },
+  addressLine2: { type: String },
+  city: { type: String, required: true },
+  state: { type: String, required: true },
+  postalCode: { type: String, required: true },
+  country: { type: String, required: true },
 }, { timestamps: true });
 
-adresseSchema.index({ UtilisateurID: 1 });
+addressSchema.index({ userID: 1 });
 
-const avisSchema = new Schema({
-  AvisID: { type: Schema.Types.ObjectId, auto: true },
-  ProduitID: { type: Schema.Types.ObjectId, ref: 'Produit' },
-  ClientID: { type: Schema.Types.ObjectId, ref: 'Utilisateur' },
-  Note: { type: Number, min: 1, max: 5 },
-  Commentaire: { type: String },
+// Review Schema
+const reviewSchema = new Schema({
+  reviewID: { type: Schema.Types.ObjectId, auto: true },
+  productID: { type: Schema.Types.ObjectId, ref: 'Product' },
+  clientID: { type: Schema.Types.ObjectId, ref: 'User' },
+  rating: { type: Number, min: 1, max: 5 },
+  comment: { type: String },
 }, { timestamps: true });
 
-const categorieSchema = new Schema({
-  CategorieID: { type: Schema.Types.ObjectId, auto: true },
-  Nom: { type: String, required: true },
-  Description: { type: String },
+// Category Schema
+const categorySchema = new Schema({
+  categoryID: { type: Schema.Types.ObjectId, auto: true },
+  name: { type: String, required: true },
+  description: { type: String },
 }, { timestamps: true });
 
-categorieSchema.index({ Nom: 1 });
+categorySchema.index({ name: 1 });
 
-const commandeArticleSchema = new Schema({
-  CommandeArticleID: { type: Schema.Types.ObjectId, auto: true },
-  CommandeID: { type: Schema.Types.ObjectId, ref: 'Commande' },
-  ProduitID: { type: Schema.Types.ObjectId, ref: 'Produit' },
-  Quantite: { type: Number, required: true },
-  Prix: { type: Number, required: true },
+// OrderItem Schema
+const orderItemSchema = new Schema({
+  orderItemID: { type: Schema.Types.ObjectId, auto: true },
+  orderID: { type: Schema.Types.ObjectId, ref: 'Order' },
+  productID: { type: Schema.Types.ObjectId, ref: 'Product' },
+  quantity: { type: Number, required: true },
+  price: { type: Number, required: true },
 });
 
-const commandeSchema = new Schema({
-  CommandeID: { type: Schema.Types.ObjectId, auto: true },
-  ClientID: { type: Schema.Types.ObjectId, ref: 'Utilisateur' },
-  Statut: {
+// Order Schema
+const orderSchema = new Schema({
+  orderID: { type: Schema.Types.ObjectId, auto: true },
+  clientID: { type: Schema.Types.ObjectId, ref: 'User' },
+  status: {
     type: String,
-    enum: ['En attente', 'Traitee', 'Expediee', 'Livree', 'Annulee'],
-    default: 'En attente',
+    enum: ['Pending', 'Processed', 'Shipped', 'Delivered', 'Cancelled'],
+    default: 'Pending',
   },
-  MontantTotal: { type: Number },
+  totalAmount: { type: Number },
 }, { timestamps: true });
 
-commandeSchema.index({ ClientID: 1, Statut: 1 });
+orderSchema.index({ clientID: 1, status: 1 });
 
-const expeditionSchema = new Schema({
-  ExpeditionID: { type: Schema.Types.ObjectId, auto: true },
-  CommandeID: { type: Schema.Types.ObjectId, ref: 'Commande' },
-  AdresseID: { type: Schema.Types.ObjectId, ref: 'Adresse' },
-  DateExpedition: { type: Date },
-  DateLivraison: { type: Date },
-  Statut: {
+// Shipment Schema
+const shipmentSchema = new Schema({
+  shipmentID: { type: Schema.Types.ObjectId, auto: true },
+  orderID: { type: Schema.Types.ObjectId, ref: 'Order' },
+  addressID: { type: Schema.Types.ObjectId, ref: 'Address' },
+  shipmentDate: { type: Date },
+  deliveryDate: { type: Date },
+  status: {
     type: String,
-    enum: ['En attente', 'Expediee', 'Livree'],
-    default: 'En attente',
+    enum: ['Pending', 'Shipped', 'Delivered'],
+    default: 'Pending',
   },
 }, { timestamps: true });
 
-const inventaireSchema = new Schema({
-  InventaireID: { type: Schema.Types.ObjectId, auto: true },
-  ProduitID: { type: Schema.Types.ObjectId, ref: 'Produit' },
-  VendeurID: { type: Schema.Types.ObjectId, ref: 'Utilisateur' },
-  Quantite: { type: Number, required: true },
+// Courier Schema
+const courierSchema = new Schema({
+  courierID: { type: Schema.Types.ObjectId, auto: true },
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  phoneNumber: { type: String },
+  vehicle: { type: String },
+}, { timestamps: true });
+
+courierSchema.index({ email: 1 });
+
+// Inventory Schema
+const inventorySchema = new Schema({
+  inventoryID: { type: Schema.Types.ObjectId, auto: true },
+  productID: { type: Schema.Types.ObjectId, ref: 'Product' },
+  sellerID: { type: Schema.Types.ObjectId, ref: 'User' },
+  quantity: { type: Number, required: true },
 });
 
-const paiementSchema = new Schema({
-  PaiementID: { type: Schema.Types.ObjectId, auto: true },
-  CommandeID: { type: Schema.Types.ObjectId, ref: 'Commande' },
-  MethodePaiement: {
+// Payment Schema
+const paymentSchema = new Schema({
+  paymentID: { type: Schema.Types.ObjectId, auto: true },
+  orderID: { type: Schema.Types.ObjectId, ref: 'Order' },
+  paymentMethod: {
     type: String,
-    enum: ['Carte de crédit', 'PayPal', 'Virement bancaire'],
+    enum: ['Credit Card', 'PayPal', 'Bank Transfer'],
   },
-  Montant: { type: Number, required: true },
+  amount: { type: Number, required: true },
 }, { timestamps: true });
 
-const produitSchema = new Schema({
-  ProduitID: { type: Schema.Types.ObjectId, auto: true },
-  VendeurID: { type: Schema.Types.ObjectId, ref: 'Utilisateur' },
-  Nom: { type: String, required: true },
-  Description: { type: String },
-  Prix: { type: Number, required: true },
-  Stock: { type: Number, required: true },
-  CategorieID: { type: Schema.Types.ObjectId, ref: 'Categorie' },
-  Disponible: { type: Boolean, default: true },
+// Product Schema
+const productSchema = new Schema({
+  productID: { type: Schema.Types.ObjectId, auto: true },
+  sellerID: { type: Schema.Types.ObjectId, ref: 'User' },
+  name: { type: String, required: true },
+  description: { type: String },
+  price: { type: Number, required: true },
+  stock: { type: Number, required: true },
+  categoryID: { type: Schema.Types.ObjectId, ref: 'Category' },
+  available: { type: Boolean, default: true },
+  image: { type: String },
 }, { timestamps: true });
 
-produitSchema.index({ Nom: 1 });
+productSchema.index({ name: 1 });
 
-const utilisateurSchema = new Schema({
-  UtilisateurID: { type: Schema.Types.ObjectId, auto: true },
-  NomUtilisateur: { type: String, required: true },
-  PrenomUtilisateur: { type: String, required: true },
-  MotDePasseHash: { type: String, required: true },
-  EmailUtilisateur: { type: String, required: true, unique: true },
-  NumeroTelephone: { type: String },
-  TypeUtilisateur: {
+// User Schema
+const userSchema = new Schema({
+  userID: { type: Schema.Types.ObjectId, auto: true },
+  username: { type: String, required: true },
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  passwordHash: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  phoneNumber: { type: String },
+  userType: {
     type: String,
-    enum: ['client', 'vendeur', 'admin'],
+    enum: ['client', 'seller', 'admin', 'courier'],
     required: true,
   },
-  avatarImage: { type: String }, 
+  avatarImage: { type: String },
 }, { timestamps: true });
 
+userSchema.index({ email: 1 });
 
-utilisateurSchema.index({ EmailUtilisateur: 1 });
-
-const Adresse = mongoose.models.Adresse || mongoose.model('Adresse', adresseSchema);
-const Avis = mongoose.models.Avis || mongoose.model('Avis', avisSchema);
-const Categorie = mongoose.models.Categorie || mongoose.model('Categorie', categorieSchema);
-const CommandeArticle = mongoose.models.CommandeArticle || mongoose.model('CommandeArticle', commandeArticleSchema);
-const Commande = mongoose.models.Commande || mongoose.model('Commande', commandeSchema);
-const Expedition = mongoose.models.Expedition || mongoose.model('Expedition', expeditionSchema);
-const Inventaire = mongoose.models.Inventaire || mongoose.model('Inventaire', inventaireSchema);
-const Paiement = mongoose.models.Paiement || mongoose.model('Paiement', paiementSchema);
-const Produit = mongoose.models.Produit || mongoose.model('Produit', produitSchema);
-const Utilisateur = mongoose.models.Utilisateur || mongoose.model('Utilisateur', utilisateurSchema);
+const Address = mongoose.models.Address || mongoose.model('Address', addressSchema);
+const Review = mongoose.models.Review || mongoose.model('Review', reviewSchema);
+const Category = mongoose.models.Category || mongoose.model('Category', categorySchema);
+const OrderItem = mongoose.models.OrderItem || mongoose.model('OrderItem', orderItemSchema);
+const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
+const Shipment = mongoose.models.Shipment || mongoose.model('Shipment', shipmentSchema);
+const Courier = mongoose.models.Courier || mongoose.model('Courier', courierSchema);
+const Inventory = mongoose.models.Inventory || mongoose.model('Inventory', inventorySchema);
+const Payment = mongoose.models.Payment || mongoose.model('Payment', paymentSchema);
+const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
+const User = mongoose.models.User || mongoose.model('User', userSchema);
 
 export {
-  Adresse,
-  Avis,
-  Categorie,
-  CommandeArticle,
-  Commande,
-  Expedition,
-  Inventaire,
-  Paiement,
-  Produit,
-  Utilisateur,
+  Address,
+  Review,
+  Category,
+  OrderItem,
+  Order,
+  Shipment,
+  Courier,
+  Inventory,
+  Payment,
+  Product,
+  User,
 };

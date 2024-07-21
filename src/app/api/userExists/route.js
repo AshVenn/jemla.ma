@@ -1,20 +1,20 @@
 import { NextResponse } from 'next/server';
 import connectMongoDB from "../../../lib/backend/db/mongodb";
-import { Utilisateur } from "../../../lib/backend/models/models";
+import { User } from "../../../lib/backend/models/models";
 
 export async function POST(req) {
   try {
     await connectMongoDB();
     const data = await req.json();
-    const existingUser = await Utilisateur.findOne({ EmailUtilisateur: data.email });
+    const existingUser = await User.findOne({ email: data.email });
 
     if (existingUser) {
-      return NextResponse.json({ message: 'L\'utilisateur existe déjà' }, { status: 400 });
+      return NextResponse.json({ message: 'User already exists' }, { status: 400 });
     }
 
-    return NextResponse.json({ message: 'Utilisateur non trouvé' }, { status: 200 });
+    return NextResponse.json({ message: 'User not found' }, { status: 200 });
   } catch (e) {
-    console.error('Erreur lors de la vérification de l\'utilisateur:', e);
-    return NextResponse.json({ message: 'Erreur lors de la vérification de l\'utilisateur' }, { status: 500 });
+    console.error('Error checking user:', e);
+    return NextResponse.json({ message: 'Error checking user' }, { status: 500 });
   }
 }

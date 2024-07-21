@@ -1,15 +1,15 @@
-'use client'
+'use client';
 // Import React and required components
 import { useQuery } from 'react-query';
-import { Produit, columns } from "./{components}/products/columns";
-import { ProductTable } from "./{components}/products/data-table";
+import { Product, columns } from "./(components)/products/columns";
+import { ProductTable } from "./(components)/products/data-table";
 import { useSession } from "next-auth/react";
 
 // Function to fetch data from API
-async function fetchData(vendeurId: string): Promise<Produit[]> {
-  const response = await fetch(`/api/vendeur/products?vendeurId=${vendeurId}`);
+async function fetchData(sellerId: string): Promise<Product[]> {
+  const response = await fetch(`/api/seller/products?sellerId=${sellerId}`);
   if (!response.ok) {
-    throw new Error('Erreur lors de la récupération des produits');
+    throw new Error('Error fetching products');
   }
   return await response.json();
 }
@@ -17,25 +17,25 @@ async function fetchData(vendeurId: string): Promise<Produit[]> {
 // Default export for the component
 export default function ProductTablePage() {
   const { data: session, status } = useSession();
-  const vendeurId = session?.user?.id;
+  const sellerId = session?.user?.id;
 
   // Use React Query useQuery hook to fetch data
-  const { data, isLoading, isError } = useQuery<Produit[], Error>(
-    ['products', vendeurId],
-    () => fetchData(vendeurId),
+  const { data, isLoading, isError } = useQuery<Product[], Error>(
+    ['products', sellerId],
+    () => fetchData(sellerId),
     {
-      enabled: !!vendeurId, // Only fetch data if vendeurId is available
+      enabled: !!sellerId, // Only fetch data if sellerId is available
     }
   );
 
   // Loading state while fetching data
   if (status === 'loading' || isLoading) {
-    return <div>Chargement en cours...</div>;
+    return <div>Loading...</div>;
   }
 
   // Display login prompt if user is not authenticated
   if (!session?.user?.id || isError) {
-    return <div>Veuillez vous connecter pour voir les produits.</div>;
+    return <div>Please log in to view the products.</div>;
   }
 
   // Render DataTable with fetched data

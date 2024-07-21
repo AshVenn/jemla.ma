@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,55 +10,50 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Checkbox } from "@/components/ui/checkbox"
+import { Checkbox } from "@/components/ui/checkbox";
 import React from "react";
 
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef } from "@tanstack/react-table";
 
-
- 
-
-
-
-// Define the type for Produit
-export type Produit = {
-  ProduitID: string
-  VendeurID: string
-  Nom: string
-  Description?: string
-  Prix: number
-  Stock: number
-  CategorieID?: string
-  Disponible: boolean
-  createdAt: string
-  updatedAt: string
-}
+// Define the type for Product
+export type Product = {
+  productID: string;
+  sellerID: string;
+  name: string;
+  description?: string;
+  price: number;
+  stock: number;
+  categoryID?: string;
+  available: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
 
 // Define the columns for the table
-export const columns: ColumnDef<Produit>[] = [
+export const columns: ColumnDef<Product>[] = [
   {
-      id: "filter-select",
-      header: () => (
-        <DropdownMenu>
-          <DropdownMenuContent>
-            <DropdownMenuItem>
-              <span>Filtrer par:</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem key="NomAgent">Nom Agent</DropdownMenuItem>
-            <DropdownMenuItem key="PrenomAgent">Prenom Agent</DropdownMenuItem>
-            <DropdownMenuItem key="EmailAgent">Email Agent</DropdownMenuItem>
-            <DropdownMenuItem key="TelAgent">Tel Agent</DropdownMenuItem>
-            <DropdownMenuItem key="AdresseAgent">Adresse Agent</DropdownMenuItem>
-            <DropdownMenuItem key="VilleAgent">Ville Agent</DropdownMenuItem>
-            <DropdownMenuItem key="CodePostalAgent">CodePostal Agent</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
-      cell: () => null, // Empty cell for the dropdown
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
+    id: "filter-select",
+    header: () => (
+      <DropdownMenu>
+        <DropdownMenuContent>
+          <DropdownMenuItem>
+            <span>Filtrer par:</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem key="NomAgent">Nom Agent</DropdownMenuItem>
+          <DropdownMenuItem key="PrenomAgent">Prenom Agent</DropdownMenuItem>
+          <DropdownMenuItem key="EmailAgent">Email Agent</DropdownMenuItem>
+          <DropdownMenuItem key="TelAgent">Tel Agent</DropdownMenuItem>
+          <DropdownMenuItem key="AdresseAgent">Adresse Agent</DropdownMenuItem>
+          <DropdownMenuItem key="VilleAgent">Ville Agent</DropdownMenuItem>
+          <DropdownMenuItem key="CodePostalAgent">CodePostal Agent</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    ),
+    cell: () => null, // Empty cell for the dropdown
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
     id: "select",
     header: ({ table }) => (
       <Checkbox
@@ -81,7 +76,7 @@ export const columns: ColumnDef<Produit>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "Nom",
+    accessorKey: "name",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -93,7 +88,7 @@ export const columns: ColumnDef<Produit>[] = [
     ),
   },
   {
-    accessorKey: "Description",
+    accessorKey: "description",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -105,7 +100,7 @@ export const columns: ColumnDef<Produit>[] = [
     ),
   },
   {
-    accessorKey: "Prix",
+    accessorKey: "price",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -118,7 +113,7 @@ export const columns: ColumnDef<Produit>[] = [
     cell: ({ getValue }) => `€${getValue()}`, // Format as currency
   },
   {
-    accessorKey: "Stock",
+    accessorKey: "stock",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -130,7 +125,7 @@ export const columns: ColumnDef<Produit>[] = [
     ),
   },
   {
-    accessorKey: "Disponible",
+    accessorKey: "available",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -140,7 +135,7 @@ export const columns: ColumnDef<Produit>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ getValue }) => getValue() ? "Oui" : "Non",
+    cell: ({ getValue }) => (getValue() ? "Oui" : "Non"),
   },
   {
     accessorKey: "createdAt",
@@ -171,8 +166,8 @@ export const columns: ColumnDef<Produit>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const payment = row.original
- 
+      const product = row.original;
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -184,16 +179,16 @@ export const columns: ColumnDef<Produit>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.ProduitID)}
+              onClick={() => navigator.clipboard.writeText(product.productID)}
             >
-              Copy payment ID
+              Copy product ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            <DropdownMenuItem>View product details</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      )
+      );
     },
   },
-]
+];

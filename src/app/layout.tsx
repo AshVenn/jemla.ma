@@ -1,6 +1,6 @@
 import "./globals.css"
 import { Inter as FontSans } from "next/font/google"
-import { ThemeProvider } from "./{cpnotrouted}/theme-provider"
+import { ThemeProvider } from "./(cpnotrouted)/theme-provider"
 import { cn } from "@/lib/utils"
 
 import AuthProvider from './Providers'

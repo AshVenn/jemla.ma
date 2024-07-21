@@ -13,10 +13,10 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-// Define the schema using zod with French validation messages
+// Define the schema using zod with English validation messages
 const formSchema = z.object({
-  email: z.string().email("Adresse e-mail invalide"),
-  password: z.string().min(6, "Le mot de passe doit comporter au moins 6 caractères"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 export default function Login() {
@@ -53,9 +53,9 @@ export default function Login() {
       console.log("User Type:", userType); // Check userType in console
 
       switch (userType) {
-        case 'vendeur':
-          console.log("Redirecting to vendeur dashboard");
-          router.push("/vendeur/dashboard");
+        case 'seller':
+          console.log("Redirecting to seller dashboard");
+          router.push("/seller/dashboard");
           break;
         case 'client':
           console.log("Redirecting to client dashboard");
@@ -80,7 +80,7 @@ export default function Login() {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <Card className="w-full max-w-md mx-4">
         <CardHeader>
-          <CardTitle>S'authentifier</CardTitle>
+          <CardTitle>Login</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -103,9 +103,9 @@ export default function Login() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Mot de passe</FormLabel>
+                    <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="Mot de passe" {...field} />
+                      <Input type="password" placeholder="Password" {...field} />
                     </FormControl>
                     <FormMessage>{form.formState.errors.password?.message}</FormMessage>
                   </FormItem>
@@ -113,13 +113,13 @@ export default function Login() {
               />
               <FormMessage>{logInError}</FormMessage>
               <Button type="submit" className="w-full">
-                S'authentifier
+                Login
               </Button>
             </form>
           </Form>
         </CardContent>
         <CardFooter className="flex justify-between">
-          <Link href="/register">Vous êtes nouveau? S'inscrire?</Link>
+          <Link href="/register">New here? Register</Link>
         </CardFooter>
       </Card>
     </div>

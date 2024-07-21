@@ -19,7 +19,7 @@ function VendeurDashboardSidebar() {
     <div className="lg:block hidden border-r h-full">
       <div className="flex h-full max-h-screen flex-col gap-2 ">
         <div className="flex h-[55px] items-center justify-between border-b px-3 w-full">
-          <Link className="flex items-center gap-2 font-semibold ml-1" href="/vendeur/dashboard">
+          <Link className="flex items-center gap-2 font-semibold ml-1" href="/Seller/dashboard">
             <span className="">Vendeur Dashboard</span>
           </Link>
         </div>
@@ -27,9 +27,9 @@ function VendeurDashboardSidebar() {
           <nav className="grid items-start px-4 text-sm font-medium">
             <Link
               className={clsx("flex items-center gap-2 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50", {
-                "flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-gray-900 transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50": pathname === "/vendeur/dashboard"
+                "flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-gray-900 transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50": pathname === "/Seller/dashboard"
               })}
-              href="/vendeur/dashboard"
+              href="/Seller/dashboard"
             >
               <div className="border rounded-lg dark:bg-black dark:border-gray-800 border-gray-400 p-1 bg-white">
                 <LayoutDashboard className="h-3 w-3" />
@@ -38,9 +38,9 @@ function VendeurDashboardSidebar() {
             </Link>
             <Link
               className={clsx("flex items-center gap-2 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50", {
-                "flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-gray-900 transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50": pathname === "/vendeur/products"
+                "flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-gray-900 transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50": pathname === "/seller/products"
               })}
-              href="/vendeur/products"
+              href="/seller/products"
             >
               <div className="border rounded-lg dark:bg-black dark:border-gray-800 border-gray-400 p-1 bg-white">
                 <Box className="h-3 w-3" />
@@ -49,9 +49,9 @@ function VendeurDashboardSidebar() {
             </Link>
             <Link
               className={clsx("flex items-center gap-2 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50", {
-                "flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-gray-900 transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50": pathname === "/vendeur/orders"
+                "flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-gray-900 transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50": pathname === "/seller/orders"
               })}
-              href="/vendeur/orders"
+              href="/seller/orders"
             >
               <div className="border rounded-lg dark:bg-black dark:border-gray-800 border-gray-400 p-1 bg-white">
                 <ShoppingCart className="h-3 w-3" />
@@ -61,9 +61,9 @@ function VendeurDashboardSidebar() {
             <Separator className="my-3" />
             <Link
               className={clsx("flex items-center gap-2 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50", {
-                "flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-gray-900 transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50": pathname === "/vendeur/settings"
+                "flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-gray-900 transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50": pathname === "/Seller/settings"
               })}
-              href="/vendeur/settings"
+              href="/Seller/settings"
               id="onboarding"
             >
               <div className="border rounded-lg dark:bg-black dark:border-gray-800 border-gray-400 p-1 bg-white">

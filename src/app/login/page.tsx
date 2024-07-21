@@ -1,5 +1,5 @@
 import React from 'react'
-import LoginForm from '../{cpnotrouted}/login'
+import LoginForm from '../(cpnotrouted)/login'
 function page() {
   return (
     <LoginForm/>

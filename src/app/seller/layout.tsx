@@ -4,8 +4,8 @@ import { ReactNode } from 'react';
 import '../globals.css';
 import { Inter as FontSans } from 'next/font/google';
 import { cn } from '@/lib/utils';
-import VendeurDashboardSidebard from './dashboard/{components}/VendeurDashboardSidebard';
-import VendeurDashboardNavbar from './dashboard/{components}/VendeurDashboardNavbar';
+import SellerDashboardSidebar from './dashboard/(components)/SellerDashboardSidebar';
+import SellerDashboardNavbar from './dashboard/(components)/SellerDashboardNavbar';
 import AuthProvider from '../Providers';
 
 interface RootLayoutProps {
@@ -20,10 +20,10 @@ export default function VendeurLayout({ children }: RootLayoutProps) {
     <QueryClientProvider client={queryClient}>
       <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
         <AuthProvider>
-          <VendeurDashboardSidebard />
-          <VendeurDashboardNavbar>
+          <SellerDashboardSidebar />
+          <SellerDashboardNavbar>
             <main className="flex flex-col gap-4 p-4 lg:gap-6">{children}</main>
-          </VendeurDashboardNavbar>
+          </SellerDashboardNavbar>
         </AuthProvider>
       </div>
     </QueryClientProvider>
