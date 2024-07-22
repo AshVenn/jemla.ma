@@ -11,19 +11,22 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
-// Define the async logout function
-const handleLogout = async () => {
-  await signOut({ callbackUrl: '/login' });
-};
-
+import { useSession } from "next-auth/react";
 export function AvatarDropdown() {
+  const { data: session } = useSession();
+
+  // Define the async logout function
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/login' });
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon">
           <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" />
-            <AvatarFallback>CN</AvatarFallback>
+            <AvatarImage src={session?.user?.avatarImage} />
+            <AvatarFallback>{session?.user?.firstName}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>

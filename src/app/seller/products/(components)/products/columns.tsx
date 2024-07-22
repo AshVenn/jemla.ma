@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import React from "react";
-
+import { CldImage } from 'next-cloudinary';
 import { ColumnDef } from "@tanstack/react-table";
 
 // Define the type for Product
@@ -27,32 +27,12 @@ export type Product = {
   available: boolean;
   createdAt: string;
   updatedAt: string;
+  image: string;
 };
 
 // Define the columns for the table
 export const columns: ColumnDef<Product>[] = [
-  {
-    id: "filter-select",
-    header: () => (
-      <DropdownMenu>
-        <DropdownMenuContent>
-          <DropdownMenuItem>
-            <span>Filtrer par:</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem key="NomAgent">Nom Agent</DropdownMenuItem>
-          <DropdownMenuItem key="PrenomAgent">Prenom Agent</DropdownMenuItem>
-          <DropdownMenuItem key="EmailAgent">Email Agent</DropdownMenuItem>
-          <DropdownMenuItem key="TelAgent">Tel Agent</DropdownMenuItem>
-          <DropdownMenuItem key="AdresseAgent">Adresse Agent</DropdownMenuItem>
-          <DropdownMenuItem key="VilleAgent">Ville Agent</DropdownMenuItem>
-          <DropdownMenuItem key="CodePostalAgent">CodePostal Agent</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
-    cell: () => null, // Empty cell for the dropdown
-    enableSorting: false,
-    enableHiding: false,
-  },
+  
   {
     id: "select",
     header: ({ table }) => (
@@ -74,6 +54,23 @@ export const columns: ColumnDef<Product>[] = [
     ),
     enableSorting: false,
     enableHiding: false,
+  },
+  {
+    accessorKey: "image",
+    header: "Image",
+    cell: ({ row }) => {
+      const product = row.original;
+      return (
+        <CldImage
+          src={product.image}
+          width="50"
+          height="50"
+          crop="fill"
+          alt={product.name}
+          className="rounded"
+        />
+      );
+    },
   },
   {
     accessorKey: "name",
@@ -165,6 +162,9 @@ export const columns: ColumnDef<Product>[] = [
   },
   {
     id: "actions",
+    header: () => (
+      <Button variant="ghost">Actions</Button>
+    ),
     cell: ({ row }) => {
       const product = row.original;
 

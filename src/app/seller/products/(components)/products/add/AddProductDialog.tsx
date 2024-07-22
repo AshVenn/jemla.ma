@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,26 +9,27 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import AddProduct from './AddProduct';
 
 function AddProductDialog() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleFormSuccess = () => {
+    setIsOpen(false);
+  };
+
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button>Ajouter</Button>
+        <Button onClick={() => setIsOpen(true)}>Ajouter</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] max-h-screen overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Ajouter un Produit</DialogTitle>
-          <DialogDescription>
-            <AddProduct/>
-          </DialogDescription>
         </DialogHeader>
-        <DialogFooter>
-          <Button type="submit">Save changes</Button>
-        </DialogFooter>
+        <DialogDescription>
+          <AddProduct onSuccess={handleFormSuccess} />
+        </DialogDescription>
       </DialogContent>
     </Dialog>
   );

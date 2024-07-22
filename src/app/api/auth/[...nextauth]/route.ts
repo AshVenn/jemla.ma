@@ -1,3 +1,5 @@
+// pages/api/auth/[...nextauth].ts
+
 import connectMongoDB from "@/lib/backend/db/mongodb";
 import { User } from "@/lib/backend/models/models";
 import bcrypt from "bcryptjs";
@@ -26,8 +28,6 @@ export const authOptions = {
             throw new Error("Incorrect password");
           }
 
-          console.log("Authenticated user:", user.toObject());
-
           return {
             id: user._id,
             email: user.email,
@@ -35,6 +35,7 @@ export const authOptions = {
             lastName: user.lastName,
             type: user.userType,
             phoneNumber: user.phoneNumber,
+            avatarImage: user.avatarImage,
           };
         } catch (error) {
           console.error("Authentication error:", error.message);
@@ -56,6 +57,7 @@ export const authOptions = {
         token.lastName = user.lastName;
         token.type = user.type;
         token.phoneNumber = user.phoneNumber;
+        token.avatarImage = user.avatarImage;
       }
       return token;
     },
@@ -67,6 +69,7 @@ export const authOptions = {
         session.user.lastName = token.lastName;
         session.user.type = token.type;
         session.user.phoneNumber = token.phoneNumber;
+        session.user.avatarImage = token.avatarImage;
       }
       return session;
     },

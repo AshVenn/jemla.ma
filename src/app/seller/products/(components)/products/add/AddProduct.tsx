@@ -21,14 +21,16 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Product } from '@/lib/backend/models/models';
+import { useQuery, useMutation } from 'react-query';
+import { useSession } from 'next-auth/react';
 
 const formSchema = z.object({
-  name: z.string().min(2, 'Invalid name').max(255, 'Name too long'),
-  description: z.string().max(1024, 'Description too long'),
-  price: z.number().min(0, 'Price must be greater than or equal to 0'),
-  stock: z.number().min(0, 'Stock must be greater than or equal to 0'),
-  categoryID: z.string().min(1, 'Please select a category'),
+  name: z.string().min(2, 'Nom invalide').max(255, 'Nom trop long'),
+  description: z.string().max(1024, 'Description trop longue'),
+  price: z.coerce.number().min(0, 'Le prix doit être supérieur ou égal à 0'),
+  stock: z.coerce.number().min(0, 'Le stock doit être supérieur ou égal à 0'),
+  categoryID: z.string().min(1, 'Veuillez sélectionner une catégorie'),
+  image: z.any().refine(file => file instanceof File && file.size > 0, 'Veuillez sélectionner une image'),
 });
 
 interface FormData {
@@ -37,42 +39,93 @@ interface FormData {
   price: number;
   stock: number;
   categoryID: string;
+  image: File;
 }
 
-const AddProduct: React.FC = () => {
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+const fetchCategories = async () => {
+  const response = await fetch('/api/categories');
+  if (!response.ok) {
+    throw new Error('Erreur lors du chargement des catégories');
+  }
+  return await response.json();
+};
+
+const uploadImage = async (image: File) => {
+  const formData = new FormData();
+  formData.append('file', image);
+  formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET);
+
+  const response = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, {
+    method: 'POST',
+    body: formData,
   });
 
-  const onSubmit = async (data: FormData) => {
-    try {
-      // Perform your submission logic here, e.g., saving to MongoDB via API
-      const response = await fetch('/api/addProduct', {
+  if (!response.ok) {
+    throw new Error('Erreur lors du téléchargement de l\'image');
+  }
+
+  const data = await response.json();
+  return data.secure_url;
+};
+
+const AddProduct: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
+  const { data: session } = useSession();
+  const { data: categories, isLoading: isLoadingCategories, isError: isErrorCategories } = useQuery('categories', fetchCategories);
+  
+  const mutation = useMutation(
+    async (data: FormData) => {
+      const imageUrl = await uploadImage(data.image);
+      const productData = {
+        ...data,
+        image: imageUrl,
+        sellerID: session?.user?.id,
+      };
+
+      const response = await fetch('/api/seller/products', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(productData),
       });
 
       if (!response.ok) {
-        throw new Error('Error adding product');
+        throw new Error('Erreur lors de l\'ajout du produit');
       }
 
-      const result = await response.json();
-      console.log(result);
-      // Optionally redirect or show success message
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      // Handle error state or show error message
+      return await response.json();
+    },
+    {
+      onSuccess: () => {
+        onSuccess();
+      },
+      onError: (error) => {
+        console.error('Erreur lors de l\'ajout du produit:', error);
+      },
     }
+  );
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+  });
+
+  const onSubmit = (data: FormData) => {
+    mutation.mutate(data);
   };
+
+  if (isLoadingCategories) {
+    return <div>Chargement des catégories...</div>;
+  }
+
+  if (isErrorCategories) {
+    return <div>Erreur lors du chargement des catégories</div>;
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <Card className="w-full max-w-md mx-4">
         <CardHeader>
-          <CardTitle>Add a Product</CardTitle>
+          <CardTitle>Ajouter un Produit</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -82,9 +135,9 @@ const AddProduct: React.FC = () => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Product Name</FormLabel>
+                    <FormLabel>Nom du Produit</FormLabel>
                     <FormControl>
-                      <Input placeholder="Product Name" {...field} />
+                      <Input placeholder="Nom du Produit" {...field} />
                     </FormControl>
                     <FormMessage>{form.formState.errors.name?.message}</FormMessage>
                   </FormItem>
@@ -108,9 +161,9 @@ const AddProduct: React.FC = () => {
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price</FormLabel>
+                    <FormLabel>Prix</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="Price" {...field} />
+                      <Input type="number" placeholder="Prix" {...field} />
                     </FormControl>
                     <FormMessage>{form.formState.errors.price?.message}</FormMessage>
                   </FormItem>
@@ -134,16 +187,18 @@ const AddProduct: React.FC = () => {
                 name="categoryID"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>Catégorie</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <SelectTrigger className="w-full md:w-[180px]">
-                        <SelectValue placeholder="Select a category" />
+                        <SelectValue placeholder="Sélectionner une catégorie" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-60 overflow-y-auto">
                         <SelectGroup>
-                          {/* Render your categories dynamically */}
-                          <SelectItem value="category_id_1">Category 1</SelectItem>
-                          <SelectItem value="category_id_2">Category 2</SelectItem>
+                          {categories.map((category: any) => (
+                            <SelectItem key={category._id} value={category._id}>
+                              {category.name}
+                            </SelectItem>
+                          ))}
                         </SelectGroup>
                       </SelectContent>
                     </Select>
@@ -151,14 +206,31 @@ const AddProduct: React.FC = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                Add Product
+              <FormField
+                control={form.control}
+                name="image"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Image du Produit</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={e => field.onChange(e.target.files?.[0])} 
+                      />
+                    </FormControl>
+                    <FormMessage>{form.formState.errors.image?.message}</FormMessage>
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full" disabled={mutation.isLoading}>
+                {mutation.isLoading ? 'Ajout du produit...' : 'Ajouter le produit'}
               </Button>
             </form>
           </Form>
         </CardContent>
         <CardFooter>
-          {/* Optional: add links or additional content */}
+          {/* Optionnel : ajouter des liens ou du contenu supplémentaire */}
         </CardFooter>
       </Card>
     </div>

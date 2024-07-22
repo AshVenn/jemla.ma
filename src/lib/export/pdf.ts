@@ -9,7 +9,7 @@ function pdfExport(data: any[], columns: ColumnDef<any, any>[]) {
 
   // Filter out unwanted columns and ensure we only include columns with accessorKey, excluding createdAt and updatedAt
   const columnsForExport = columns
-    .filter(col => col.accessorKey && col.accessorKey !== 'createdAt' && col.accessorKey !== 'updatedAt')
+    .filter(col => col.accessorKey && col.accessorKey !== 'createdAt' && col.accessorKey !== 'updatedAt' && col.accessorKey !== 'image')
     .map(col => ({
       label: col.accessorKey,
       value: (row: any) => {

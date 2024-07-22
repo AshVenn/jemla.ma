@@ -2,8 +2,6 @@
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactNode } from 'react';
 import '../globals.css';
-import { Inter as FontSans } from 'next/font/google';
-import { cn } from '@/lib/utils';
 import SellerDashboardSidebar from './dashboard/(components)/SellerDashboardSidebar';
 import SellerDashboardNavbar from './dashboard/(components)/SellerDashboardNavbar';
 import AuthProvider from '../Providers';

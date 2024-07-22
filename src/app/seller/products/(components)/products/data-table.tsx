@@ -71,11 +71,11 @@ export function ProductTable<TData, TValue>({
   });
 
   return (
-    <div className="rounded-md border flex flex-col h-full overflow-hidden">
+    <>
       <div className='overflow-auto'>
       <div className="py-4 flex items-center justify-between space-x-2">
         <AjouterDialog/>
-        <div className="flex space-x-1">
+        <div className=''>
           <Button onClick={() => excelExport(table.getRowModel().rows.map(row => row.original), columns)}>
             Excel
           </Button>
@@ -188,7 +188,7 @@ export function ProductTable<TData, TValue>({
         </Button>
       </div>
       </div>
-    </div>
+   </>
   );
 }
 
