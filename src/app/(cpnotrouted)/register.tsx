@@ -1,26 +1,16 @@
 'use client';
-import * as React from 'react';
+import React from 'react';
+import { useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import Link from 'next/link';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -55,7 +45,7 @@ interface FormData {
   email: string;
   password: string;
   confirmPassword: string;
-  serviceType: 'client' | 'seller' | 'admin' | 'courier' |'';
+  serviceType: 'client' | 'seller' | 'admin' | 'courier' | '';
   lastName: string;
   firstName: string;
   phoneNumber: string;
@@ -63,6 +53,28 @@ interface FormData {
 }
 
 export default function Register(): JSX.Element {
+  const { data: session } = useSession();
+  const router = useRouter();
+  
+  useEffect(() => {
+    if (session) {
+      switch (session.user.type) {
+        case 'seller':
+          router.push('/seller/dashboard');
+          break;
+        case 'client':
+          router.push('/client/dashboard');
+          break;
+        case 'admin':
+          router.push('/admin/dashboard');
+          break;
+        default:
+          router.push('/');
+          break;
+      }
+    }
+  }, [session, router]);
+
   const [userExistsError, setUserExistsError] = React.useState<string | null>(null);
 
   const form = useForm<FormData>({

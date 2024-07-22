@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import connectMongoDB from '../../../lib/backend/db/mongodb';
-import { User } from '../../../lib/backend/models/models';
+import connectMongoDB from '@/lib/backend/db/mongodb';
+import { User } from '@/lib/backend/models/models';
+import authCheckMiddleware from '../../(middlewares)/authCheckMiddleware';
 
-export async function POST(req) {
+const handler = async (req) => {
   try {
     await connectMongoDB();
     const data = await req.json();
@@ -42,4 +43,6 @@ export async function POST(req) {
       status: 500,
     });
   }
-}
+};
+
+export default authCheckMiddleware(handler);
