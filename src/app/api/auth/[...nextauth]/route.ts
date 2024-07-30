@@ -1,5 +1,3 @@
-// pages/api/auth/[...nextauth].ts
-
 import connectMongoDB from "@/lib/backend/db/mongodb";
 import { User } from "@/lib/backend/models/models";
 import bcrypt from "bcryptjs";
@@ -30,6 +28,7 @@ export const authOptions = {
 
           return {
             id: user._id,
+            username: user.username,
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
@@ -52,6 +51,7 @@ export const authOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.username = user.username;
         token.email = user.email;
         token.firstName = user.firstName;
         token.lastName = user.lastName;
@@ -64,6 +64,7 @@ export const authOptions = {
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id;
+        session.user.username = token.username;
         session.user.email = token.email;
         session.user.firstName = token.firstName;
         session.user.lastName = token.lastName;

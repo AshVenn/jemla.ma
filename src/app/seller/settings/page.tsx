@@ -15,6 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useSession, signIn } from 'next-auth/react';
+import { CldImage } from 'next-cloudinary';
 
 const formSchema = z.object({
   username: z.string().min(2, 'Nom d’utilisateur invalide'),
@@ -32,11 +33,11 @@ const formSchema = z.object({
   phoneNumber: z
     .string()
     .min(10, 'Numéro de téléphone invalide')
-    .refine(data => data.startsWith('+212'), {
+    .refine((data) => data.startsWith('+212'), {
       message: 'Le numéro de téléphone doit commencer par +212',
     }),
-  picture: z.any().refine(file => file instanceof File && file.size > 0, 'Veuillez sélectionner une image').optional(),
-}).refine(data => data.password === data.confirmPassword || !data.password, {
+  picture: z.any().refine((file) => file instanceof File && file.size > 0, 'Veuillez sélectionner une image').optional(),
+}).refine((data) => data.password === data.confirmPassword || !data.password, {
   path: ['confirmPassword'],
   message: 'Les mots de passe ne correspondent pas',
 });
@@ -63,7 +64,7 @@ const uploadImage = async (image: File) => {
   });
 
   if (!response.ok) {
-    throw new Error('Erreur lors du téléchargement de l\'image');
+    throw new Error("Erreur lors du téléchargement de l'image");
   }
 
   const data = await response.json();
@@ -85,6 +86,14 @@ export default function Settings(): JSX.Element {
       phoneNumber: session?.user?.phoneNumber || '',
       picture: null,
     },
+  });
+
+  const [fieldsEnabled, setFieldsEnabled] = React.useState({
+    username: false,
+    email: false,
+    firstName: false,
+    lastName: false,
+    phoneNumber: false,
   });
 
   const onSubmit = async (data: FormData) => {
@@ -150,8 +159,15 @@ export default function Settings(): JSX.Element {
     }
   };
 
+  const toggleFieldEdit = (fieldName: keyof FormData) => {
+    setFieldsEnabled((prev) => ({
+      ...prev,
+      [fieldName]: !prev[fieldName],
+    }));
+  };
+
   const togglePasswordChange = () => {
-    setIsPasswordChangeEnabled(prev => !prev);
+    setIsPasswordChangeEnabled((prev) => !prev);
     if (!isPasswordChangeEnabled) {
       // Clear password fields if password change is disabled
       form.setValue('password', '');
@@ -160,7 +176,7 @@ export default function Settings(): JSX.Element {
   };
 
   return (
-    <div className="flex items-center justify-center  p-4 md:p-0">
+    <div className="flex items-center justify-center p-4 md:p-0">
       <div className="w-full max-w-4xl p-8">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-8">
@@ -173,9 +189,21 @@ export default function Settings(): JSX.Element {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nom d’utilisateur</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nom d’utilisateur" {...field} />
-                      </FormControl>
+                      <div className="flex items-center space-x-2">
+                        <FormControl>
+                          <Input
+                            placeholder="Nom d’utilisateur"
+                            {...field}
+                            disabled={!fieldsEnabled.username}
+                          />
+                        </FormControl>
+                        <Button
+                          type="button"
+                          onClick={() => toggleFieldEdit('username')}
+                        >
+                          {fieldsEnabled.username ? 'Lock' : 'Edit'}
+                        </Button>
+                      </div>
                       <FormMessage>{form.formState.errors.username?.message}</FormMessage>
                     </FormItem>
                   )}
@@ -186,9 +214,21 @@ export default function Settings(): JSX.Element {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nom</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nom" {...field} />
-                      </FormControl>
+                      <div className="flex items-center space-x-2">
+                        <FormControl>
+                          <Input
+                            placeholder="Nom"
+                            {...field}
+                            disabled={!fieldsEnabled.lastName}
+                          />
+                        </FormControl>
+                        <Button
+                          type="button"
+                          onClick={() => toggleFieldEdit('lastName')}
+                        >
+                          {fieldsEnabled.lastName ? 'Lock' : 'Edit'}
+                        </Button>
+                      </div>
                       <FormMessage>{form.formState.errors.lastName?.message}</FormMessage>
                     </FormItem>
                   )}
@@ -199,9 +239,21 @@ export default function Settings(): JSX.Element {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Prénom</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Prénom" {...field} />
-                      </FormControl>
+                      <div className="flex items-center space-x-2">
+                        <FormControl>
+                          <Input
+                            placeholder="Prénom"
+                            {...field}
+                            disabled={!fieldsEnabled.firstName}
+                          />
+                        </FormControl>
+                        <Button
+                          type="button"
+                          onClick={() => toggleFieldEdit('firstName')}
+                        >
+                          {fieldsEnabled.firstName ? 'Lock' : 'Edit'}
+                        </Button>
+                      </div>
                       <FormMessage>{form.formState.errors.firstName?.message}</FormMessage>
                     </FormItem>
                   )}
@@ -212,9 +264,21 @@ export default function Settings(): JSX.Element {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Numéro de Téléphone</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Numéro de Téléphone" {...field} />
-                      </FormControl>
+                      <div className="flex items-center space-x-2">
+                        <FormControl>
+                          <Input
+                            placeholder="Numéro de Téléphone"
+                            {...field}
+                            disabled={!fieldsEnabled.phoneNumber}
+                          />
+                        </FormControl>
+                        <Button
+                          type="button"
+                          onClick={() => toggleFieldEdit('phoneNumber')}
+                        >
+                          {fieldsEnabled.phoneNumber ? 'Lock' : 'Edit'}
+                        </Button>
+                      </div>
                       <FormMessage>{form.formState.errors.phoneNumber?.message}</FormMessage>
                     </FormItem>
                   )}
@@ -225,9 +289,21 @@ export default function Settings(): JSX.Element {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Email" {...field} className="w-full" />
-                      </FormControl>
+                      <div className="flex items-center space-x-2">
+                        <FormControl>
+                          <Input
+                            placeholder="Email"
+                            {...field}
+                            disabled={!fieldsEnabled.email}
+                          />
+                        </FormControl>
+                        <Button
+                          type="button"
+                          onClick={() => toggleFieldEdit('email')}
+                        >
+                          {fieldsEnabled.email ? 'Lock' : 'Edit'}
+                        </Button>
+                      </div>
                       <FormMessage>{form.formState.errors.email?.message}</FormMessage>
                     </FormItem>
                   )}
@@ -272,13 +348,25 @@ export default function Settings(): JSX.Element {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Image de Profil</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleFileChange}
-                        />
-                      </FormControl>
+                      <div className="flex items-center space-x-4">
+                        {session?.user?.avatarImage && (
+                          <CldImage
+                            cloudName={process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}
+                            src={session.user.avatarImage}
+                            alt="Avatar"
+                            width="100"
+                            height="100"
+                            className="rounded-full"
+                          />
+                        )}
+                        <FormControl>
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                          />
+                        </FormControl>
+                      </div>
                       <FormMessage>{form.formState.errors.picture?.message}</FormMessage>
                     </FormItem>
                   )}

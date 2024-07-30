@@ -36,7 +36,7 @@ function VendeurDashboardNavbar({ children }: { children: ReactNode }) {
                 </Link>
               </DialogClose>
               <DialogClose asChild>
-                <Link href="/seller/dashboard/products">
+                <Link href="/seller/products">
                   <Button variant="outline" className="w-full">
                     <Box className="mr-2 h-4 w-4" />
                     Produits
@@ -44,7 +44,7 @@ function VendeurDashboardNavbar({ children }: { children: ReactNode }) {
                 </Link>
               </DialogClose>
               <DialogClose asChild>
-                <Link href="/seller/dashboard/orders">
+                <Link href="/seller/orders">
                   <Button variant="outline" className="w-full">
                     <ShoppingCart className="mr-2 h-4 w-4" />
                     Commandes
@@ -53,7 +53,7 @@ function VendeurDashboardNavbar({ children }: { children: ReactNode }) {
               </DialogClose>
               <Separator className="my-3" />
               <DialogClose asChild>
-                <Link href="/seller/dashboard/settings">
+                <Link href="/seller/settings">
                   <Button variant="outline" className="w-full">
                     <Settings className="mr-2 h-4 w-4" />
                     Paramètres

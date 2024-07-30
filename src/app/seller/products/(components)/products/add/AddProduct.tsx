@@ -122,7 +122,7 @@ const AddProduct: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen">
       <Card className="w-full max-w-md mx-4">
         <CardHeader>
           <CardTitle>Ajouter un Produit</CardTitle>

@@ -75,11 +75,11 @@ export function ProductTable<TData, TValue>({
       <div className='overflow-auto'>
       <div className="py-4 flex items-center justify-between space-x-2">
         <AjouterDialog/>
-        <div className=''>
-          <Button onClick={() => excelExport(table.getRowModel().rows.map(row => row.original), columns)}>
+        <div className='flex justify-center '>
+          <Button className='ml-2' onClick={() => excelExport(table.getRowModel().rows.map(row => row.original), columns)}>
             Excel
           </Button>
-          <Button onClick={() => pdfExport(table.getRowModel().rows.map(row => row.original), columns)}>
+          <Button className='ml-2 mr-2' onClick={() => pdfExport(table.getRowModel().rows.map(row => row.original), columns)}>
             PDF
           </Button>
           <DropdownMenu>
