@@ -25,6 +25,7 @@ import {
 // Importing components for search, pagination, filtering, and visibility
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -41,6 +42,7 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
+
 
 export function ProductTable<TData, TValue>({
   columns,
@@ -72,10 +74,10 @@ export function ProductTable<TData, TValue>({
 
   return (
     <>
-      <div className='overflow-auto'>
-      <div className="py-4 flex items-center justify-between space-x-2">
+    <div className='overflow-auto'>
+    <div className="py-4 flex items-center justify-end space-x-2">
         <AjouterDialog/>
-        <div className='flex justify-center '>
+      
           <Button className='ml-2' onClick={() => excelExport(table.getRowModel().rows.map(row => row.original), columns)}>
             Excel
           </Button>
@@ -106,7 +108,6 @@ export function ProductTable<TData, TValue>({
                 ))}
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
       </div>
       <div className="py-2">
         <Input
