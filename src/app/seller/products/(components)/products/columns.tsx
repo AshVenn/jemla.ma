@@ -12,27 +12,46 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import React from "react";
-import { CldImage } from 'next-cloudinary';
 import { ColumnDef } from "@tanstack/react-table";
+import { ImageCarousel } from "./view/ImageCarousel";
+import DeleteProductDialog from './delete/DeleteProductDialog';
 
-// Define the type for Product
-export type Product = {
+// Define the type for Product with Inventory
+export type ProductWithInventory = {
   productID: string;
   sellerID: string;
   name: string;
   description?: string;
-  price: number;
-  stock: number;
+  basePrice: number;
   categoryID?: string;
   available: boolean;
   createdAt: string;
   updatedAt: string;
-  image: string;
+  images: string[];
+  quantity: number;
+  quantityRemaining: number;
+  attributes?: { key: string, value: string }[];
+  brand?: string;
+  averageRating?: number;
+};
+
+// Mapping column IDs to French labels
+export const columnLabels: any = {
+  images: "Images",
+  name: "Nom",
+  description: "Description",
+  basePrice: "Prix",
+  quantity: "Quantité Initiale",
+  quantityRemaining: "Quantité Restante",
+  available: "Disponible",
+  averageRating: "Note Moyenne",
+  createdAt: "Date de création",
+  updatedAt: "Date de mise à jour",
+  actions: "Actions"
 };
 
 // Define the columns for the table
-export const columns: ColumnDef<Product>[] = [
-  
+export const columns: ColumnDef<ProductWithInventory>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -56,20 +75,11 @@ export const columns: ColumnDef<Product>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "image",
-    header: "Image",
+    accessorKey: "images",
+    header: columnLabels["images"],
     cell: ({ row }) => {
       const product = row.original;
-      return (
-        <CldImage
-          src={product.image}
-          width="50"
-          height="50"
-          crop="fill"
-          alt={product.name}
-          className="rounded"
-        />
-      );
+      return <ImageCarousel images={product.images} />;
     },
   },
   {
@@ -79,7 +89,7 @@ export const columns: ColumnDef<Product>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Nom
+        {columnLabels["name"]}
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
@@ -91,32 +101,44 @@ export const columns: ColumnDef<Product>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Description
+        {columnLabels["description"]}
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
   },
   {
-    accessorKey: "price",
+    accessorKey: "basePrice",
     header: ({ column }) => (
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Prix
+        {columnLabels["basePrice"]}
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ getValue }) => `€${getValue()}`, // Format as currency
+    cell: ({ getValue }) => `€${getValue()}`,
   },
   {
-    accessorKey: "stock",
+    accessorKey: "quantity",
     header: ({ column }) => (
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Stock
+        {columnLabels["quantity"]}
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+  },
+  {
+    accessorKey: "quantityRemaining",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        {columnLabels["quantityRemaining"]}
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
@@ -128,11 +150,24 @@ export const columns: ColumnDef<Product>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Disponible
+        {columnLabels["available"]}
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
     cell: ({ getValue }) => (getValue() ? "Oui" : "Non"),
+  },
+  {
+    accessorKey: "averageRating",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        {columnLabels["averageRating"]}
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ getValue }) => `${getValue()} / 5`,
   },
   {
     accessorKey: "createdAt",
@@ -141,11 +176,11 @@ export const columns: ColumnDef<Product>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Date de création
+        {columnLabels["createdAt"]}
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ getValue }) => new Date(getValue()).toLocaleDateString(), // Format date
+    cell: ({ getValue }) => new Date(getValue()).toLocaleDateString(),
   },
   {
     accessorKey: "updatedAt",
@@ -154,20 +189,17 @@ export const columns: ColumnDef<Product>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Date de mise à jour
+        {columnLabels["updatedAt"]}
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ getValue }) => new Date(getValue()).toLocaleDateString(), // Format date
+    cell: ({ getValue }) => new Date(getValue()).toLocaleDateString(),
   },
   {
     id: "actions",
-    header: () => (
-      <Button variant="ghost">Actions</Button>
-    ),
+    header: () => <Button variant="ghost">{columnLabels["actions"]}</Button>,
     cell: ({ row }) => {
       const product = row.original;
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -178,17 +210,11 @@ export const columns: ColumnDef<Product>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(product.productID)}
-            >
-              Copy product ID
-            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View product details</DropdownMenuItem>
+            <DeleteProductDialog productId={product.productID} productName={product.name} />
           </DropdownMenuContent>
         </DropdownMenu>
       );
     },
-  },
+  }
 ];

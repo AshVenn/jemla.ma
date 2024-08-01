@@ -83,12 +83,35 @@
   courierSchema.index({ email: 1 });
 
   // Inventory Schema
-  const inventorySchema = new Schema({
+  const inventorySchema = new mongoose.Schema({
     inventoryID: { type: Schema.Types.ObjectId, auto: true },
-    productID: { type: Schema.Types.ObjectId, ref: 'Product' },
-    sellerID: { type: Schema.Types.ObjectId, ref: 'User' },
-    quantity: { type: Number, required: true },
+    productID: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+    sellerID: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    initialQuantity: { type: Number, required: true }, // Initial stock level when the inventory record is created
+    quantitySold: { type: Number, default: 0 }, // Quantity sold so far
+    price: { type: Number, required: true }, // Seller-specific price
+    lastRestockDate: { type: Date }, // Date of the last restock
+    lastUpdateDate: { type: Date, default: Date.now }, // Last update timestamp
+    status: {
+      type: String,
+      enum: ['In Stock', 'Out of Stock', 'Discontinued'],
+      default: 'In Stock',
+    }, // Status of the product
+  }, { timestamps: true });
+  
+  // Calculate remaining quantity dynamically based on initial quantity and quantity sold
+  inventorySchema.virtual('remainingQuantity').get(function() {
+    return this.initialQuantity - this.quantitySold;
   });
+  
+  // Ensure lastUpdateDate is updated whenever the document is saved
+  inventorySchema.pre('save', function(next) {
+    this.lastUpdateDate = Date.now();
+    next();
+  });
+  
+  // Create indexes for efficient querying
+  inventorySchema.index({ productID: 1, sellerID: 1 });
 
   // Payment Schema
   const paymentSchema = new Schema({
@@ -102,19 +125,43 @@
   }, { timestamps: true });
 
   // Product Schema
-  const productSchema = new Schema({
+  const productSchema = new mongoose.Schema({
     productID: { type: Schema.Types.ObjectId, auto: true },
-    sellerID: { type: Schema.Types.ObjectId, ref: 'User' },
-    name: { type: String, required: true },
-    description: { type: String },
-    price: { type: Number, required: true },
-    stock: { type: Number, required: true },
-    categoryID: { type: Schema.Types.ObjectId, ref: 'Category' },
-    available: { type: Boolean, default: true },
-    image: { type: String },
+    sellerID: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    name: { type: String, required: true, trim: true, maxlength: 255 },
+    description: { type: String, maxlength: 1024 },
+    detailedDescription: { type: String, maxlength: 5000 }, // More detailed description
+    basePrice: { type: Number, required: true, min: 0 }, // Base price
+    categoryID: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
+    images: [{ type: String }], // Array of image URLs
+    attributes: [{ key: String, value: String }], // Product-specific attributes (e.g., size, color)
+    sku: { type: String, unique: true }, // Stock Keeping Unit, unique identifier
+    brand: { type: String }, // Brand name
+    tags: [{ type: String }], // Tags for easier search and SEO
+    seo: { // SEO related fields
+      title: { type: String, maxlength: 255 },
+      description: { type: String, maxlength: 500 },
+      keywords: [{ type: String }],
+    },
+    available: { type: Boolean, default: true }, // Availability status
+    averageRating: { type: Number, default: 0, min: 0, max: 5 }, // Average rating of the product
+    numReviews: { type: Number, default: 0 }, // Number of reviews
+    warranty: { type: String }, // Warranty information
+    returnPolicy: { type: String }, // Return policy
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
   }, { timestamps: true });
-
-  productSchema.index({ name: 1 });
+  
+  // Indexes for efficient querying
+  productSchema.index({ name: 1, categoryID: 1, sku: 1 });
+  
+  // Middleware to update the updatedAt field
+  productSchema.pre('save', function(next) {
+    this.updatedAt = Date.now();
+    next();
+  });
+  
+  
 
   // User Schema
   const userSchema = new Schema({

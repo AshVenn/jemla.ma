@@ -1,5 +1,5 @@
 'use client';
-import * as React from 'react';
+import React, { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -19,27 +19,40 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useQuery, useMutation } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { useSession } from 'next-auth/react';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Nom invalide').max(255, 'Nom trop long'),
   description: z.string().max(1024, 'Description trop longue'),
-  price: z.coerce.number().min(0, 'Le prix doit être supérieur ou égal à 0'),
-  stock: z.coerce.number().min(0, 'Le stock doit être supérieur ou égal à 0'),
+  detailedDescription: z.string().max(5000, 'Description détaillée trop longue'),
+  basePrice: z.coerce.number().min(0, 'Le prix doit être supérieur ou égal à 0'),
+  quantity: z.coerce.number().min(0, 'La quantité doit être supérieure ou égale à 0'),
   categoryID: z.string().min(1, 'Veuillez sélectionner une catégorie'),
-  image: z.any().refine(file => file instanceof File && file.size > 0, 'Veuillez sélectionner une image'),
+  sku: z.string().optional(),
+  brand: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  warranty: z.string().optional(),
+  returnPolicy: z.string().optional(),
+  images: z.array(z.instanceof(File)).max(3).optional(), // Array of image files
 });
 
 interface FormData {
   name: string;
   description?: string;
-  price: number;
-  stock: number;
+  detailedDescription?: string;
+  basePrice: number;
+  quantity: number;
   categoryID: string;
-  image: File;
+  sku?: string;
+  brand?: string;
+  tags?: string[];
+  warranty?: string;
+  returnPolicy?: string;
+  images?: File[];
 }
 
 const fetchCategories = async () => {
@@ -50,7 +63,7 @@ const fetchCategories = async () => {
   return await response.json();
 };
 
-const uploadImage = async (image: File) => {
+const uploadImageToCloudinary = async (image: File) => {
   const formData = new FormData();
   formData.append('file', image);
   formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET);
@@ -70,14 +83,19 @@ const uploadImage = async (image: File) => {
 
 const AddProduct: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
   const { data: session } = useSession();
+  const queryClient = useQueryClient(); // Create a queryClient instance to manage the cache
   const { data: categories, isLoading: isLoadingCategories, isError: isErrorCategories } = useQuery('categories', fetchCategories);
-  
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+
   const mutation = useMutation(
     async (data: FormData) => {
-      const imageUrl = await uploadImage(data.image);
+      const imageUrls = await Promise.all(
+        (data.images || []).map(image => uploadImageToCloudinary(image))
+      );
+
       const productData = {
         ...data,
-        image: imageUrl,
+        images: imageUrls,
         sellerID: session?.user?.id,
       };
 
@@ -97,6 +115,7 @@ const AddProduct: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
     },
     {
       onSuccess: () => {
+        queryClient.invalidateQueries('products'); // Invalidate the 'products' query to refresh the data table
         onSuccess();
       },
       onError: (error) => {
@@ -113,6 +132,19 @@ const AddProduct: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
     mutation.mutate(data);
   };
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const files = event.target.files;
+    if (files && files[0]) {
+      const newImages = form.getValues('images') || [];
+      newImages[index] = files[0];
+      form.setValue('images', newImages);
+
+      const newPreviews = [...previewUrls];
+      newPreviews[index] = URL.createObjectURL(files[0]);
+      setPreviewUrls(newPreviews);
+    }
+  };
+
   if (isLoadingCategories) {
     return <div>Chargement des catégories...</div>;
   }
@@ -123,13 +155,13 @@ const AddProduct: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
 
   return (
     <div className="flex items-center justify-center min-h-screen">
-      <Card className="w-full max-w-md mx-4">
+      <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Ajouter un Produit</CardTitle>
+          <CardTitle className='text-xl text-center'>Ajouter un Produit</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 md:space-y-4">
               <FormField
                 control={form.control}
                 name="name"
@@ -150,7 +182,7 @@ const AddProduct: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Input placeholder="Description" {...field} />
+                      <Textarea placeholder="Description" {...field} />
                     </FormControl>
                     <FormMessage>{form.formState.errors.description?.message}</FormMessage>
                   </FormItem>
@@ -158,27 +190,40 @@ const AddProduct: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
               />
               <FormField
                 control={form.control}
-                name="price"
+                name="detailedDescription"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Prix</FormLabel>
+                    <FormLabel>Description Détaillée</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="Prix" {...field} />
+                      <Textarea placeholder="Description Détaillée" {...field} />
                     </FormControl>
-                    <FormMessage>{form.formState.errors.price?.message}</FormMessage>
+                    <FormMessage>{form.formState.errors.detailedDescription?.message}</FormMessage>
                   </FormItem>
                 )}
               />
               <FormField
                 control={form.control}
-                name="stock"
+                name="basePrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Stock</FormLabel>
+                    <FormLabel>Prix de Base</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="Stock" {...field} />
+                      <Input type="number" placeholder="Prix de Base" {...field} />
                     </FormControl>
-                    <FormMessage>{form.formState.errors.stock?.message}</FormMessage>
+                    <FormMessage>{form.formState.errors.basePrice?.message}</FormMessage>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="quantity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Quantité</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="Quantité" {...field} />
+                    </FormControl>
+                    <FormMessage>{form.formState.errors.quantity?.message}</FormMessage>
                   </FormItem>
                 )}
               />
@@ -188,38 +233,161 @@ const AddProduct: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Catégorie</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <SelectTrigger className="w-full md:w-[180px]">
-                        <SelectValue placeholder="Sélectionner une catégorie" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-60 overflow-y-auto">
-                        <SelectGroup>
-                          {categories.map((category: any) => (
-                            <SelectItem key={category._id} value={category._id}>
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <SelectTrigger className="w-full md:w-[180px]">
+                          <SelectValue placeholder="Sélectionner une catégorie" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-60 overflow-y-auto">
+                          <SelectGroup>
+                            {categories.map((category: any) => (
+                              <SelectItem key={category._id} value={category._id}>
+                                {category.name}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
                     <FormMessage>{form.formState.errors.categoryID?.message}</FormMessage>
                   </FormItem>
                 )}
               />
               <FormField
                 control={form.control}
-                name="image"
+                name="sku"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Image du Produit</FormLabel>
+                    <FormLabel>SKU</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="file" 
-                        accept="image/*" 
-                        onChange={e => field.onChange(e.target.files?.[0])} 
+                      <Input placeholder="SKU" {...field} />
+                    </FormControl>
+                    <FormMessage>{form.formState.errors.sku?.message}</FormMessage>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="brand"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Marque</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Marque" {...field} />
+                    </FormControl>
+                    <FormMessage>{form.formState.errors.brand?.message}</FormMessage>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="tags"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tags</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Tags (séparés par des virgules)" {...field} onChange={(e) => field.onChange(e.target.value.split(',').map(tag => tag.trim()))} />
+                    </FormControl>
+                    <FormMessage>{form.formState.errors.tags?.message}</FormMessage>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="warranty"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Garantie</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Garantie" {...field} />
+                    </FormControl>
+                    <FormMessage>{form.formState.errors.warranty?.message}</FormMessage>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="returnPolicy"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Politique de Retour</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Politique de Retour" {...field} />
+                    </FormControl>
+                    <FormMessage>{form.formState.errors.returnPolicy?.message}</FormMessage>
+                  </FormItem>
+                )}
+              />
+              {/* Image Upload Inputs */}
+              <FormField
+                control={form.control}
+                name="images[0]"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Image 1</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(e, 0)}
                       />
                     </FormControl>
-                    <FormMessage>{form.formState.errors.image?.message}</FormMessage>
+                    {previewUrls[0] && (
+                      <img
+                        src={previewUrls[0]}
+                        alt="Preview 1"
+                        className="mt-2 max-h-20"
+                      />
+                    )}
+                    <FormMessage>{form.formState.errors.images?.[0]?.message}</FormMessage>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="images[1]"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Image 2</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(e, 1)}
+                      />
+                    </FormControl>
+                    {previewUrls[1] && (
+                      <img
+                        src={previewUrls[1]}
+                        alt="Preview 2"
+                        className="mt-2 max-h-20"
+                      />
+                    )}
+                    <FormMessage>{form.formState.errors.images?.[1]?.message}</FormMessage>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="images[2]"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Image 3</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(e, 2)}
+                      />
+                    </FormControl>
+                    {previewUrls[2] && (
+                      <img
+                        src={previewUrls[2]}
+                        alt="Preview 3"
+                        className="mt-2 max-h-20"
+                      />
+                    )}
+                    <FormMessage>{form.formState.errors.images?.[2]?.message}</FormMessage>
                   </FormItem>
                 )}
               />

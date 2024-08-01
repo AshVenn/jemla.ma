@@ -24,9 +24,6 @@ function AddProductDialog() {
         <Button onClick={() => setIsOpen(true)}>Ajouter</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] max-h-screen overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Ajouter un Produit</DialogTitle>
-        </DialogHeader>
         <DialogDescription>
           <AddProduct onSuccess={handleFormSuccess} />
         </DialogDescription>
