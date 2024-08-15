@@ -6,6 +6,7 @@ import { useQuery } from 'react-query';
 import { useSession } from 'next-auth/react';
 import OrdersTable from "./(components)/orders/data-table";
 import { columns, Order } from "./(components)/orders/columns";
+import { Separator } from '@/components/ui/separator';
 
 async function fetchOrders(sellerId: string): Promise<Order[]> {
   const response = await fetch(`/api/seller/orders?sellerId=${sellerId}`);
@@ -36,6 +37,7 @@ export default function CommandesPage() {
   return (
     <div className="container mx-auto py-10">
       <h1 className="text-2xl font-bold mb-4">Commandes</h1>
+      <Separator/>
       <OrdersTable columns={columns} data={orders || []} />
     </div>
   );

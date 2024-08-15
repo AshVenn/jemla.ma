@@ -1,4 +1,4 @@
-import { AvatarDropdown } from '@/app/(cpnotrouted)/logout'
+import { AvatarDropdown } from '@/app/(cpnotrouted)/avatarLogout'
 import { ModeToggle } from '../../../(cpnotrouted)/mode-toggle'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogClose } from '@/components/ui/dialog'
@@ -8,6 +8,7 @@ import { HamburgerMenuIcon } from '@radix-ui/react-icons'
 import { LayoutDashboard, Box, ShoppingCart, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { ReactNode } from 'react'
+
 
 function VendeurDashboardNavbar({ children }: { children: ReactNode }) {
   return (

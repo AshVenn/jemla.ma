@@ -6,29 +6,29 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import Link from "next/link";
 import { signIn, getSession } from "next-auth/react";
-import { useRouter } from "next/navigation"; // Updated import
+import { useRouter } from "next/navigation"; // Import mis à jour
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-// Define the schema using zod with English validation messages
+// Définir le schéma en utilisant zod avec des messages de validation en français
 const formSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z.string().email("Adresse e-mail invalide"),
+  password: z.string().min(6, "Le mot de passe doit comporter au moins 6 caractères"),
 });
 
 export default function Login() {
-  const router = useRouter(); // useRouter from next/navigation
+  const router = useRouter(); // useRouter de next/navigation
   const [logInError, setLogInError] = React.useState<string | null>(null);
 
-  // Set up the form with react-hook-form and zod resolver
+  // Configurer le formulaire avec react-hook-form et zod resolver
   const form = useForm({
     resolver: zodResolver(formSchema),
   });
 
-  // Function to handle form submission
+  // Fonction pour gérer la soumission du formulaire
   const onSubmit = async (data) => {
     try {
       const res = await signIn("credentials", {
@@ -37,42 +37,47 @@ export default function Login() {
         redirect: false,
       });
 
-      console.log("SignIn Response:", res); // Log the signIn response
+      console.log("Réponse de SignIn:", res); // Afficher la réponse de signIn
 
       if (res.error) {
-        setLogInError(res.error);
+        // Utiliser des messages d'erreur plus spécifiques
+        if (res.error === 'CredentialsSignin') {
+          setLogInError("Identifiants incorrects. Veuillez vérifier votre email et mot de passe.");
+        } else {
+          setLogInError("Une erreur est survenue lors de la connexion. Veuillez réessayer.");
+        }
         return;
       }
 
-      // Fetch the session after a successful sign-in
+      // Récupérer la session après une connexion réussie
       const session = await getSession();
-      console.log("Session Object:", session);
+      console.log("Objet Session:", session);
 
-      // Assuming you have access to the user's type after login
+      // Supposant que vous avez accès au type d'utilisateur après la connexion
       const userType = session?.user?.type;
-      console.log("User Type:", userType); // Check userType in console
+      console.log("Type d'utilisateur:", userType); // Vérifier le type d'utilisateur dans la console
 
       switch (userType) {
         case 'seller':
-          console.log("Redirecting to seller dashboard");
+          console.log("Redirection vers le tableau de bord vendeur");
           router.push("/seller/dashboard");
           break;
         case 'client':
-          console.log("Redirecting to client dashboard");
+          console.log("Redirection vers le tableau de bord client");
           router.push("/client/dashboard");
           break;
         case 'admin':
-          console.log("Redirecting to admin dashboard");
+          console.log("Redirection vers le tableau de bord administrateur");
           router.push("/admin/dashboard");
           break;
         default:
-          console.log("Unknown user type:", userType);
-          // Handle any other cases or unexpected types
+          console.log("Type d'utilisateur inconnu:", userType);
+          // Gérer les autres cas ou types inattendus
           break;
       }
     } catch (e) {
       console.log(e);
-      // Handle error
+      setLogInError("Une erreur inattendue est survenue. Veuillez réessayer plus tard.");
     }
   };
 
@@ -80,7 +85,7 @@ export default function Login() {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <Card className="w-full max-w-md mx-4">
         <CardHeader>
-          <CardTitle>Login</CardTitle>
+          <CardTitle>Connexion</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -103,23 +108,23 @@ export default function Login() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>Mot de passe</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="Password" {...field} />
+                      <Input type="password" placeholder="Mot de passe" {...field} />
                     </FormControl>
                     <FormMessage>{form.formState.errors.password?.message}</FormMessage>
                   </FormItem>
                 )}
               />
-              <FormMessage>{logInError}</FormMessage>
+              {logInError && <FormMessage>{logInError}</FormMessage>}
               <Button type="submit" className="w-full">
-                Login
+                Connexion
               </Button>
             </form>
           </Form>
         </CardContent>
         <CardFooter className="flex justify-between">
-          <Link href="/register">New here? Register</Link>
+          <Link href="/register">Nouveau ici ? Inscrivez-vous</Link>
         </CardFooter>
       </Card>
     </div>

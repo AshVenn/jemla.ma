@@ -22,7 +22,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-// Importing components for search, pagination, filtering, and visibility
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +32,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import excelExport from '../../../../../lib/export/seller/products/xlsx';
 import pdfExport from '../../../../../lib/export/seller/products/pdf';
 import AjouterDialog from './add/AddProductDialog';
@@ -44,7 +44,6 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
 }
 
-
 export function ProductTable<TData, TValue>({
   columns,
   data,
@@ -53,6 +52,29 @@ export function ProductTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [filtering, setFiltering] = React.useState<string>('');
+  const [productsPerPage, setProductsPerPage] = React.useState(5);  // Default to 5 products per page
+  const [currentPage, setCurrentPage] = React.useState(1);
+
+  const lastProductIndex = currentPage * productsPerPage;
+  const firstProductIndex = lastProductIndex - productsPerPage;
+
+  const totalProducts = data.length;
+  const pageNumbers = [];
+  for (let i = 1; i <= Math.ceil(totalProducts / productsPerPage); i++) {
+    pageNumbers.push(i);
+  }
+
+  const handleNextPage = () => {
+    if (currentPage < pageNumbers.length) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   const table = useReactTable({
     data,
@@ -75,10 +97,9 @@ export function ProductTable<TData, TValue>({
 
   return (
     <>
-    <div className='overflow-auto'>
-    <div className="py-4 flex items-center justify-end space-x-2">
-        <AjouterDialog/>
-      
+      <div className='overflow-auto'>
+        <div className="py-4 flex items-center justify-end space-x-2">
+          <AjouterDialog />
           <Button className='ml-2' onClick={() => excelExport(table.getRowModel().rows.map(row => row.original), columns)}>
             Excel
           </Button>
@@ -92,105 +113,102 @@ export function ProductTable<TData, TValue>({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                {table
-                  .getAllColumns()
-                  .filter((column) => column.getCanHide())
-                  .map((column) => (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {columnLabels[column.id] || column.id}
-                    </DropdownMenuCheckboxItem>
-                  ))}
-              </DropdownMenuContent>
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) =>
+                      column.toggleVisibility(!!value)
+                    }
+                  >
+                    {columnLabels[column.id] || column.id}
+                  </DropdownMenuCheckboxItem>
+                ))}
+            </DropdownMenuContent>
           </DropdownMenu>
-      </div>
-      <div className="py-2">
-        <Input
-          placeholder="Filtrer..."
-          value={filtering}
-          onChange={(event) =>
-            setFiltering(event.target.value)
-          }
-          className="w-full"
-        />
-      </div>
-      <div className="grid grid-cols-1 flex-1 overflow-auto">
-        <Table className="min-w-full">
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
+        </div>
+        <div className="py-2">
+          <Input
+            placeholder="Filtrer..."
+            value={filtering}
+            onChange={(event) =>
+              setFiltering(event.target.value)
+            }
+            className="w-full"
+          />
+        </div>
+        <div className="grid grid-cols-1 flex-1 overflow-auto">
+          <Table className="min-w-full">
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
                           header.column.columnDef.header,
                           header.getContext()
                         )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() ? "selected" : undefined}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
+                    </TableHead>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  Aucun résultat.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows
+                ?.slice(firstProductIndex, lastProductIndex)
+                .map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() ? "selected" : undefined}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Pagination Component */}
+        <div className="flex justify-center py-4">
+          <Pagination className="flex justify-end">
+            <PaginationContent>
+              <PaginationItem style={{ cursor: 'pointer' }}>
+                <PaginationPrevious onClick={handlePrevPage} />
+              </PaginationItem>
+
+              {pageNumbers.map((pageNumber, idx) => (
+                <PaginationItem
+                  style={{ cursor: 'pointer' }}
+                  key={idx}
+                  className={currentPage === pageNumber ? "bg-neutral-100 rounded-md" : ""}
+                >
+                  <PaginationLink onClick={() => setCurrentPage(pageNumber)}>
+                    {pageNumber}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
+              <PaginationItem style={{ cursor: 'pointer' }}>
+                <PaginationNext onClick={handleNextPage} />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
       </div>
-      <div className="flex items-center justify-start space-x-2 py-4">
-        <Button
-          className="ml-4"
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            table.previousPage();
-          }}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Précédent
-        </Button>
-        <Button
-          className="ml-4"
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            table.nextPage();
-          }}
-          disabled={!table.getCanNextPage()}
-        >
-          Suivant
-        </Button>
-      </div>
-      </div>
-   </>
+    </>
   );
 }
 
