@@ -24,7 +24,7 @@ export default async  function RootLayout({ children }: RootLayoutProps) {
         {/* Ajoutez ici les éléments nécessaires dans le head */}
       </head>
       <body className={cn(
-        "min-h-screen bg-background font-sans antialiased",
+        "w-full min-h-screen bg-background font-sans antialiased",
         fontSans.variable
       )}>
         <AuthProvider session={session}>
@@ -34,6 +34,7 @@ export default async  function RootLayout({ children }: RootLayoutProps) {
           enableSystem
           disableTransitionOnChange
         >
+          
           {children}
         </ThemeProvider>
         </AuthProvider>
