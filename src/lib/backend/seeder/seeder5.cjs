@@ -1,5 +1,5 @@
 // node --experimental-modules ./src/lib/backend/seeder/seeder5.cjs
-// seeder4.cjs
+// seeder5.cjs
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const bcrypt = require('bcryptjs');
@@ -122,9 +122,6 @@ async function seedDatabase() {
 
     // Generate random orders for the new client
     const ordersData = [
-      { clientID: client._id, sellerID: seller1._id, status: 'Pending', totalAmount: 0 },
-      { clientID: client._id, sellerID: seller1._id, status: 'Processed', totalAmount: 0 },
-      { clientID: client._id, sellerID: seller1._id, status: 'Shipped', totalAmount: 0 },
       { clientID: client._id, sellerID: seller1._id, status: 'Delivered', totalAmount: 0 },
       // Add more orders as needed
     ];

@@ -32,42 +32,48 @@
 
   categorySchema.index({ name: 1 });
 
-  // OrderItem Schema
-  const orderItemSchema = new Schema({
-    orderItemID: { type: Schema.Types.ObjectId, auto: true },
-    orderID: { type: Schema.Types.ObjectId, ref: 'Order' },
-    productID: { type: Schema.Types.ObjectId, ref: 'Product' },
-    quantity: { type: Number, required: true },
-    price: { type: Number, required: true },
-  });
+ // OrderItem Schema
+const orderItemSchema = new Schema({
+  orderItemID: { type: Schema.Types.ObjectId, auto: true },
+  orderID: { type: Schema.Types.ObjectId, ref: 'Order' },
+  productID: { type: Schema.Types.ObjectId, ref: 'Product' },
+  quantity: { type: Number, required: true },
+  price: { type: Number, required: true },
+});
 
-  // Order Schema
-  const orderSchema = new Schema({
-    orderID: { type: Schema.Types.ObjectId, auto: true },
-    clientID: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    sellerID: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    status: {
-      type: String,
-      enum: ['Pending', 'Processed', 'Shipped', 'Delivered', 'Cancelled'],
-      default: 'Pending',
-    },
-    totalAmount: { type: Number },
-  }, { timestamps: true });
-  
-  orderSchema.index({ clientID: 1, sellerID: 1, status: 1 });
+// Order Schema
+const orderSchema = new Schema({
+  orderID: { type: Schema.Types.ObjectId, auto: true },
+  clientID: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  sellerID: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  status: {
+    type: String,
+    enum: ['Pending', 'Processed', 'Shipped', 'Delivered', 'Cancelled'],
+    default: 'Pending',
+  },
+  totalAmount: { type: Number },
+  orderItems: [orderItemSchema],  // Include orderItems directly in the Order schema
+  shipmentID: { type: Schema.Types.ObjectId, ref: 'Shipment' },
+}, { timestamps: true });
+
+orderSchema.index({ clientID: 1, sellerID: 1, status: 1 });
 
   // Shipment Schema
   const shipmentSchema = new Schema({
     shipmentID: { type: Schema.Types.ObjectId, auto: true },
-    orderID: { type: Schema.Types.ObjectId, ref: 'Order' },
-    addressID: { type: Schema.Types.ObjectId, ref: 'Address' },
-    shipmentDate: { type: Date },
-    deliveryDate: { type: Date },
+    orderID: { type: Schema.Types.ObjectId, ref: 'Order', required: true },
+    addressID: { type: Schema.Types.ObjectId, ref: 'Address', required: true },
+    courierID: { type: Schema.Types.ObjectId, ref: 'Courier' }, // Optional: link to the courier
+    shipmentDate: { type: Date, default: Date.now }, // Date when the shipment is created
+    deliveryDate: { type: Date }, // Date when the shipment is delivered
     status: {
       type: String,
-      enum: ['Pending', 'Shipped', 'Delivered'],
+      enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled'],
       default: 'Pending',
     },
+    trackingNumber: { type: String }, // Optional: Tracking number for the shipment
+    shippingMethod: { type: String }, // Optional: e.g., 'Standard', 'Express'
+    shippingCost: { type: Number }, // Optional: Cost of shipping
   }, { timestamps: true });
 
   // Courier Schema

@@ -159,7 +159,7 @@ export default function Settings(): JSX.Element {
     }
   };
 
-  const toggleFieldEdit = (fieldName: keyof FormData) => {
+  const toggleFieldModifier = (fieldName: keyof FormData) => {
     setFieldsEnabled((prev) => ({
       ...prev,
       [fieldName]: !prev[fieldName],
@@ -199,9 +199,9 @@ export default function Settings(): JSX.Element {
                         </FormControl>
                         <Button
                           type="button"
-                          onClick={() => toggleFieldEdit('username')}
+                          onClick={() => toggleFieldModifier('username')}
                         >
-                          {fieldsEnabled.username ? 'Lock' : 'Edit'}
+                          {fieldsEnabled.username ? 'Verrouiller' : 'Modifier'}
                         </Button>
                       </div>
                       <FormMessage>{form.formState.errors.username?.message}</FormMessage>
@@ -224,9 +224,9 @@ export default function Settings(): JSX.Element {
                         </FormControl>
                         <Button
                           type="button"
-                          onClick={() => toggleFieldEdit('lastName')}
+                          onClick={() => toggleFieldModifier('lastName')}
                         >
-                          {fieldsEnabled.lastName ? 'Lock' : 'Edit'}
+                          {fieldsEnabled.lastName ? 'Verrouiller' : 'Modifier'}
                         </Button>
                       </div>
                       <FormMessage>{form.formState.errors.lastName?.message}</FormMessage>
@@ -249,9 +249,9 @@ export default function Settings(): JSX.Element {
                         </FormControl>
                         <Button
                           type="button"
-                          onClick={() => toggleFieldEdit('firstName')}
+                          onClick={() => toggleFieldModifier('firstName')}
                         >
-                          {fieldsEnabled.firstName ? 'Lock' : 'Edit'}
+                          {fieldsEnabled.firstName ? 'Verrouiller' : 'Modifier'}
                         </Button>
                       </div>
                       <FormMessage>{form.formState.errors.firstName?.message}</FormMessage>
@@ -274,9 +274,9 @@ export default function Settings(): JSX.Element {
                         </FormControl>
                         <Button
                           type="button"
-                          onClick={() => toggleFieldEdit('phoneNumber')}
+                          onClick={() => toggleFieldModifier('phoneNumber')}
                         >
-                          {fieldsEnabled.phoneNumber ? 'Lock' : 'Edit'}
+                          {fieldsEnabled.phoneNumber ? 'Verrouiller' : 'Modifier'}
                         </Button>
                       </div>
                       <FormMessage>{form.formState.errors.phoneNumber?.message}</FormMessage>
@@ -299,9 +299,9 @@ export default function Settings(): JSX.Element {
                         </FormControl>
                         <Button
                           type="button"
-                          onClick={() => toggleFieldEdit('email')}
+                          onClick={() => toggleFieldModifier('email')}
                         >
-                          {fieldsEnabled.email ? 'Lock' : 'Edit'}
+                          {fieldsEnabled.email ? 'Verrouiller' : 'Modifier'}
                         </Button>
                       </div>
                       <FormMessage>{form.formState.errors.email?.message}</FormMessage>

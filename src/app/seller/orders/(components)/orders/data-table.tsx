@@ -218,7 +218,7 @@ export default function OrdersTable<TData, TValue>({
                 <PaginationItem
                   style={{ cursor: 'pointer' }}
                   key={idx}
-                  className={currentPage === pageNumber ? "bg-neutral-100 rounded-md" : ""}
+                  className={currentPage === pageNumber ? "bg-grey-100" : ""}
                 >
                   <PaginationLink onClick={() => setCurrentPage(pageNumber)}>
                     {pageNumber}

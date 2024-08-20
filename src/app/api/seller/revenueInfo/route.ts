@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectMongoDb from '../../../../lib/backend/db/mongodb';
 import { Order } from '../../../../lib/backend/models/models';
 import { Types } from 'mongoose';
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -22,18 +23,31 @@ export async function GET(req: NextRequest) {
     let startDate: Date;
     let endDate = new Date();
 
+    let prevStartDate: Date;
+    let prevEndDate: Date;
+
+    // Calculate start and end dates for current and previous periods
     if (period === 'month') {
+      // Current month
       startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      // Previous month
+      prevStartDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      prevEndDate = new Date(now.getFullYear(), now.getMonth(), 0); // Last day of the previous month
     } else if (period === 'year') {
+      // Current year
       startDate = new Date(now.getFullYear(), 0, 1);
+
+      // Previous year
+      prevStartDate = new Date(now.getFullYear() - 1, 0, 1);
+      prevEndDate = new Date(now.getFullYear() - 1, 11, 31); // Last day of the previous year
     }
 
-    console.log(`Matching orders from ${startDate} to ${endDate} for sellerID: ${sellerID}`);
-
-    const revenue = await Order.aggregate([
+    // Fetch current period revenue
+    const currentRevenue = await Order.aggregate([
       {
         $match: {
-          sellerID: new Types.ObjectId(sellerID), // Convert sellerID to ObjectId
+          sellerID: new Types.ObjectId(sellerID),
           status: 'Delivered',
           createdAt: { $gte: startDate, $lte: endDate },
         },
@@ -46,12 +60,37 @@ export async function GET(req: NextRequest) {
       },
     ]);
 
-    console.log('Revenue aggregation result:', revenue);
+    const currentRevenueAmount = currentRevenue.length > 0 ? currentRevenue[0].totalAmount : 0;
 
-    const revenueAmount = revenue.length > 0 ? revenue[0].totalAmount : 0;
+    // Fetch previous period revenue
+    const previousRevenue = await Order.aggregate([
+      {
+        $match: {
+          sellerID: new Types.ObjectId(sellerID),
+          status: 'Delivered',
+          createdAt: { $gte: prevStartDate, $lte: prevEndDate },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: '$totalAmount' },
+        },
+      },
+    ]);
+
+    const previousRevenueAmount = previousRevenue.length > 0 ? previousRevenue[0].totalAmount : 0;
+
+    // Calculate progress as percentage change
+    const progress = previousRevenueAmount
+      ? ((currentRevenueAmount - previousRevenueAmount) / previousRevenueAmount) * 100
+      : currentRevenueAmount > 0
+      ? 100
+      : 0;
 
     return NextResponse.json({
-      revenue: revenueAmount,
+      revenue: currentRevenueAmount,
+      progress,
     });
   } catch (error) {
     console.error('Erreur lors de la récupération des informations de revenu', error);

@@ -146,11 +146,11 @@ const AddProduct: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
   };
 
   if (isLoadingCategories) {
-    return <div>Chargement des catégories...</div>;
+    return <div>Chargement...</div>;
   }
 
   if (isErrorCategories) {
-    return <div>Erreur lors du chargement des catégories</div>;
+    return <div>Erreur lors du chargement...</div>;
   }
 
   return (

@@ -52,7 +52,7 @@ export function ProductTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [filtering, setFiltering] = React.useState<string>('');
-  const [productsPerPage, setProductsPerPage] = React.useState(5);  // Default to 5 products per page
+  const [productsPerPage, setProductsPerPage] = React.useState(3);  // Default to 5 products per page
   const [currentPage, setCurrentPage] = React.useState(1);
 
   const lastProductIndex = currentPage * productsPerPage;
@@ -193,7 +193,7 @@ export function ProductTable<TData, TValue>({
                 <PaginationItem
                   style={{ cursor: 'pointer' }}
                   key={idx}
-                  className={currentPage === pageNumber ? "bg-neutral-100 rounded-md" : ""}
+                  className=""
                 >
                   <PaginationLink onClick={() => setCurrentPage(pageNumber)}>
                     {pageNumber}
