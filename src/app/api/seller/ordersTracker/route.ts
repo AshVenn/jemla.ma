@@ -4,7 +4,6 @@ import { Order, OrderItem } from '../../../../lib/backend/models/models';
 
 export async function GET(req: NextRequest) {
   try {
-    
     await connectMongoDb();
 
     const { searchParams } = new URL(req.url);
@@ -16,16 +15,17 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ message: 'Seller ID is required' }, { status: 400 });
     }
 
-    // Fetch orders
+    // Fetch orders with populated payment details
     const orders = await Order.find({ sellerID, status: 'Shipped' })
-    .skip((Number(page) - 1) * Number(limit))
-    .limit(Number(limit))
-    .populate('clientID')
-    .populate({
-      path: 'shipmentID',
-      populate: { path: 'addressID' } // Populate address details
-    })
-    .exec();
+      .skip((Number(page) - 1) * Number(limit))
+      .limit(Number(limit))
+      .populate('clientID')
+      .populate({
+        path: 'shipmentID',
+        populate: { path: 'addressID' } // Populate address details
+      })
+      .populate('paymentID') // Populate payment details
+      .exec();
 
     // Fetch and populate orderItems separately
     const ordersWithItems = await Promise.all(
@@ -35,10 +35,11 @@ export async function GET(req: NextRequest) {
           ...order.toObject(),
           orderItems: items.map(item => ({
             _id: item._id,
-            productID: item.productID, // Include the full product object here
+            productID: item.productID, 
             quantity: item.quantity,
             price: item.price,
           })),
+          payment: order.paymentID ? order.paymentID.toObject() : null, // Include the populated payment details
         };
       })
     );

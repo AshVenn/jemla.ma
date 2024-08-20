@@ -54,6 +54,7 @@ const orderSchema = new Schema({
   totalAmount: { type: Number },
   orderItems: [orderItemSchema],  // Include orderItems directly in the Order schema
   shipmentID: { type: Schema.Types.ObjectId, ref: 'Shipment' },
+  paymentID: { type: Schema.Types.ObjectId, ref: 'Payment' },
 }, { timestamps: true });
 
 orderSchema.index({ clientID: 1, sellerID: 1, status: 1 });

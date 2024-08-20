@@ -1,41 +1,84 @@
-import { useState } from 'react';
+'use client';
+
+import { useState, useEffect } from 'react';
 import { useQuery } from 'react-query';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Pagination, PaginationContent, PaginationItem } from '@/components/ui/pagination';
 import { Separator } from '@/components/ui/separator';
-import { ChevronLeft, ChevronRight, Copy, CreditCard, MoreVertical, Truck } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  CreditCard,
+  WalletCards,
+  Banknote,
+  MoreVertical,
+  Truck,
+} from 'lucide-react';
 import { useSession } from 'next-auth/react';
+
 function SellerOrderTracker() {
-  const { data: session } = useSession();
-  const sellerID = session?.user?.id;
+  const { data: session, status } = useSession();
   const [page, setPage] = useState(1);
   const limit = 1;
 
+  const sellerID = session?.user?.id;
+
   const fetchOrders = async (page) => {
-  const params = new URLSearchParams({
-    sellerID: sellerID.toString(),
-    page: page.toString(),
-    limit: limit.toString(),
-  });
+    const params = new URLSearchParams({
+      sellerID: sellerID.toString(),
+      page: page.toString(),
+      limit: limit.toString(),
+    });
 
-  const response = await fetch(`/api/seller/ordersTracker?${params.toString()}`);
-  
-  if (!response.ok) {
-    throw new Error('Erreur lors de la récupération des commandes');
-  }
+    const response = await fetch(`/api/seller/ordersTracker?${params.toString()}`);
 
-  return await response.json();
-};
+    if (!response.ok) {
+      throw new Error('Erreur lors de la récupération des commandes');
+    }
+
+    return response.json();
+  };
+
   const { data, isLoading, isError } = useQuery(['orders', page], () => fetchOrders(page), {
+    enabled: !!sellerID, // Only run query if sellerID is available
     keepPreviousData: true,
   });
+
+  // Handle loading state when session is still being fetched
+  if (status === 'loading') return <span>Chargement de la session...</span>;
+  if (!sellerID) return <span>Aucun vendeur identifié.</span>;
 
   if (isLoading) return <span>Chargement des commandes...</span>;
   if (isError) return <span>Erreur lors de la récupération des commandes.</span>;
 
   const { orders, totalOrders } = data;
+
+  const renderPaymentIcon = (method) => {
+    const icons = {
+      'Credit Card': CreditCard,
+      'PayPal': WalletCards,
+      'Bank Transfer': Banknote,
+    };
+
+    const Icon = icons[method] || CreditCard;
+    return <Icon className="h-4 w-4" />;
+  };
 
   return (
     <>
@@ -45,14 +88,14 @@ function SellerOrderTracker() {
             <div className="grid gap-0.5">
               <CardTitle className="group flex items-center gap-2 text-lg">
                 Commande {order.orderID.slice(0, 6)}+
-                <Button 
-                onClick={() => navigator.clipboard.writeText(order.orderID)}
-                size="icon"
-                variant="outline"
-                className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
-              >
-                <Copy className="h-3 w-3" />
-              </Button>
+                <Button
+                  onClick={() => navigator.clipboard.writeText(order.orderID)}
+                  size="icon"
+                  variant="outline"
+                  className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
+                >
+                  <Copy className="h-3 w-3" />
+                </Button>
               </CardTitle>
               <CardDescription>Date : {new Date(order.createdAt).toLocaleDateString()}</CardDescription>
             </div>
@@ -82,14 +125,14 @@ function SellerOrderTracker() {
             <div className="grid gap-3">
               <div className="font-semibold">Détails de la commande</div>
               <ul className="grid gap-3">
-              {order.orderItems.map((item) => (
-                <li key={item._id} className="flex items-center justify-between">
-                  <span className="text-muted-foreground">
-                    {item.productID.name} x <span>{item.quantity}</span>
-                  </span>
-                  <span>€{item.productID.basePrice}</span>
-                </li>
-              ))}
+                {order.orderItems.map((item) => (
+                  <li key={item._id} className="flex items-center justify-between">
+                    <span className="text-muted-foreground">
+                      {item.productID.name} x <span>{item.quantity}</span>
+                    </span>
+                    <span>€{item.productID.basePrice}</span>
+                  </li>
+                ))}
               </ul>
               <Separator className="my-2" />
               <ul className="grid gap-3">
@@ -104,8 +147,10 @@ function SellerOrderTracker() {
               <div className="grid gap-3">
                 <div className="font-semibold">Informations de livraison</div>
                 <address className="grid gap-0.5 not-italic text-muted-foreground">
-                  <span>{order.clientID.firstName} {order.clientID.lastName}</span>
-                  <span>{order.shippingAddress}</span>
+                  <span>
+                    {order.clientID.firstName} {order.clientID.lastName}
+                  </span>
+                  <span>{order.shipmentID.addressID.addressLine1}</span>
                 </address>
               </div>
               <div className="grid auto-rows-max gap-3">
@@ -119,18 +164,20 @@ function SellerOrderTracker() {
               <dl className="grid gap-3">
                 <div className="flex items-center justify-between">
                   <dt className="text-muted-foreground">Client</dt>
-                  <dd>{order.clientID.firstName} {order.clientID.lastName}</dd>
+                  <dd>
+                    {order.clientID.firstName} {order.clientID.lastName}
+                  </dd>
                 </div>
                 <div className="flex items-center justify-between">
                   <dt className="text-muted-foreground">Email</dt>
                   <dd>
-                    <a href={`mailto:€{order.clientID.email}`}>{order.clientID.email}</a>
+                    <a href={`mailto:${order.clientID.email}`}>{order.clientID.email}</a>
                   </dd>
                 </div>
                 <div className="flex items-center justify-between">
                   <dt className="text-muted-foreground">Téléphone</dt>
                   <dd>
-                    <a href={`tel:€{order.clientID.phoneNumber}`}>{order.clientID.phoneNumber}</a>
+                    <a href={`tel:${order.clientID.phoneNumber}`}>+{order.clientID.phoneNumber}</a>
                   </dd>
                 </div>
               </dl>
@@ -141,17 +188,20 @@ function SellerOrderTracker() {
               <dl className="grid gap-3">
                 <div className="flex items-center justify-between">
                   <dt className="flex items-center gap-1 text-muted-foreground">
-                    <CreditCard className="h-4 w-4" />
-                    {order.paymentMethod}
+                    {renderPaymentIcon(order.paymentID.paymentMethod)}
+                    {order.paymentID.paymentMethod}
                   </dt>
-                  <dd>**** **** **** {order.paymentLastFourDigits}</dd>
+                  <dd>{order.paymentID.paymentID.slice(0, 6)} **** **** ****</dd>
                 </div>
               </dl>
             </div>
           </CardContent>
           <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
             <div className="text-xs text-muted-foreground">
-              Mis à jour <time dateTime={order.updatedAt}>{new Date(order.updatedAt).toLocaleDateString()}</time>
+              Mis à jour{' '}
+              <time dateTime={order.updatedAt}>
+                {new Date(order.updatedAt).toLocaleDateString()}
+              </time>
             </div>
             <Pagination className="ml-auto mr-0 w-auto">
               <PaginationContent>

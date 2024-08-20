@@ -72,6 +72,18 @@ const orderSchema = new Schema({
   },
   totalAmount: { type: Number },
   shipmentID: { type: Schema.Types.ObjectId, ref: 'Shipment' }, // Link to Shipment
+  paymentID: { type: Schema.Types.ObjectId, ref: 'Payment' },
+}, { timestamps: true });
+
+const paymentSchema = new Schema({
+  paymentID: { type: Schema.Types.ObjectId, auto: true },
+  orderID: { type: Schema.Types.ObjectId, ref: 'Order', required: true },
+  paymentMethod: {
+    type: String,
+    enum: ['Credit Card', 'PayPal', 'Bank Transfer'],
+    required: true,
+  },
+  amount: { type: Number, required: true },
 }, { timestamps: true });
 
 const userSchema = new Schema({
@@ -107,6 +119,7 @@ const Address = mongoose.models.Address || mongoose.model('Address', addressSche
 const Shipment = mongoose.models.Shipment || mongoose.model('Shipment', shipmentSchema);
 const OrderItem = mongoose.models.OrderItem || mongoose.model('OrderItem', orderItemSchema);
 const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
+const Payment = mongoose.models.Payment || mongoose.model('Payment', paymentSchema);
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 
@@ -129,6 +142,7 @@ async function seedDatabase() {
     await OrderItem.deleteMany({ orderID: { $in: orderIDs } });
     await Order.deleteMany({ _id: { $in: orderIDs } });
     await Shipment.deleteMany({ orderID: { $in: orderIDs } });
+    await Payment.deleteMany({ orderID: { $in: orderIDs } });
 
     console.log(`Deleted ${shippedOrders.length} shipped orders and related order items.`);
 
@@ -161,7 +175,7 @@ async function seedDatabase() {
       await address.save();
     }
 
-    // Create three new shipped orders with random products
+    // Create three new shipped orders with random products and payments
     for (let i = 1; i <= 3; i++) {
       const orderDate = new Date();
       orderDate.setMonth(orderDate.getMonth() - i);
@@ -215,10 +229,25 @@ async function seedDatabase() {
       newOrder.totalAmount = totalAmount;
       await newOrder.save();
 
-      console.log(`Created order ${newOrder._id} with a total of ${totalAmount}€ and ${randomProducts.length} products`);
+      // Add a payment for the order
+      const paymentMethods = ['Credit Card', 'PayPal', 'Bank Transfer'];
+      const randomPaymentMethod = paymentMethods[getRandomInt(0, paymentMethods.length - 1)];
+
+      const newPayment = new Payment({
+        orderID: newOrder._id,
+        paymentMethod: randomPaymentMethod,
+        amount: totalAmount,
+      });
+      await newPayment.save();
+
+      // Link the payment to the order
+      newOrder.paymentID = newPayment._id;
+      await newOrder.save();
+
+      console.log(`Created order ${newOrder._id} with a total of ${totalAmount}€ and ${randomProducts.length} products and payment of ${totalAmount}€ via ${randomPaymentMethod}`);
     }
 
-    console.log('Database seeded successfully with 3 new shipped orders for client1@example.com.');
+    console.log('Database seeded successfully with 3 new shipped orders and payments for client1@example.com.');
   } catch (error) {
     console.error('Error seeding database:', error);
   } finally {
