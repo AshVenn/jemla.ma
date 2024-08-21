@@ -36,7 +36,13 @@ const formSchema = z.object({
     .refine((data) => data.startsWith('+212'), {
       message: 'Le numéro de téléphone doit commencer par +212',
     }),
-  picture: z.any().refine((file) => file instanceof File && file.size > 0, 'Veuillez sélectionner une image').optional(),
+    picture: z
+    .any()
+    .optional()
+    .refine((file) => {
+      if (file instanceof File && file.size > 0) return true;
+      return file === null; // valid if no new file is uploaded
+    }, 'Veuillez sélectionner une image').optional(),
 }).refine((data) => data.password === data.confirmPassword || !data.password, {
   path: ['confirmPassword'],
   message: 'Les mots de passe ne correspondent pas',
@@ -98,26 +104,32 @@ export default function Settings(): JSX.Element {
 
   const onSubmit = async (data: FormData) => {
     try {
+      // Clear any previous phone number error
       setuserPhoneError(null);
-
-      // Check if the phone number already exists
-      const checkPhoneResponse = await fetch('/api/seller/checkPhoneNumber', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ phoneNumber: data.phoneNumber }),
-      });
-
-      if (checkPhoneResponse.status === 400) {
-        setuserPhoneError('Le numéro de téléphone est déjà pris');
-        return;
+  
+      // Step 1: Handle phone number validation only on form submission
+      if (data.phoneNumber !== session?.user?.phoneNumber) {
+        const checkPhoneResponse = await fetch('/api/seller/checkPhoneNumber', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ phoneNumber: data.phoneNumber }),
+        });
+  
+        if (checkPhoneResponse.status === 400) {
+          setuserPhoneError('Le numéro de téléphone est déjà pris');
+          return;
+        }
       }
-
-      // Upload the image if there's a new one
-      const imageUrl = data.picture ? await uploadImage(data.picture) : session?.user?.avatarImage;
-
-      // Prepare data for updating
+  
+      // Step 2: Handle image upload if a new picture is provided
+      let imageUrl = session?.user?.avatarImage;
+      if (data.picture) {
+        imageUrl = await uploadImage(data.picture);
+      }
+  
+      // Step 3: Prepare data for updating the user information
       const updateData = {
         username: data.username,
         firstName: data.firstName,
@@ -126,8 +138,8 @@ export default function Settings(): JSX.Element {
         phoneNumber: data.phoneNumber,
         avatarImage: imageUrl,
       };
-
-      // Make the request to update user information
+  
+      // Step 4: Make the request to update user information in the database
       const response = await fetch('/api/seller', {
         method: 'PUT',
         headers: {
@@ -135,27 +147,37 @@ export default function Settings(): JSX.Element {
         },
         body: JSON.stringify(updateData),
       });
-
+  
       if (!response.ok) {
         throw new Error('Erreur lors de la mise à jour des informations');
       }
-
+  
       const result = await response.json();
-
-      // Update the session on the client side
+  
+      // Step 5: Update the session on the client side with the new user data
       if (result.user) {
-        // Force session refresh
-        await signIn('credentials', { redirect: false, ...result.user });
-        console.log('User updated and session refreshed');
+        const signInResponse = await signIn('credentials', { redirect: false, ...result.user });
+        
+        if (!signInResponse.ok) {
+          throw new Error('Échec de la mise à jour de la session');
+        }
+        
+        console.log('Utilisateur mis à jour et session rafraîchie');
       }
     } catch (e) {
       console.error('Erreur lors de la soumission du formulaire:', e);
+      // Optionally show an error message to the user here
     }
   };
+  
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files?.[0]) {
-      form.setValue('picture', event.target.files[0]); // Set file in form state manually
+    const file = event.target.files?.[0];
+    if (file) {
+      form.setValue('picture', file);
+      form.clearErrors('picture'); // Clear any previous picture errors
+    } else {
+      form.setValue('picture', null); // Reset if no file is selected
     }
   };
 
@@ -198,7 +220,7 @@ export default function Settings(): JSX.Element {
                           />
                         </FormControl>
                         <Button
-                          type="button"
+                          variant="outline"
                           onClick={() => toggleFieldModifier('username')}
                         >
                           {fieldsEnabled.username ? 'Verrouiller' : 'Modifier'}
@@ -223,7 +245,7 @@ export default function Settings(): JSX.Element {
                           />
                         </FormControl>
                         <Button
-                          type="button"
+                          variant="outline"
                           onClick={() => toggleFieldModifier('lastName')}
                         >
                           {fieldsEnabled.lastName ? 'Verrouiller' : 'Modifier'}
@@ -248,7 +270,7 @@ export default function Settings(): JSX.Element {
                           />
                         </FormControl>
                         <Button
-                          type="button"
+                          variant="outline"
                           onClick={() => toggleFieldModifier('firstName')}
                         >
                           {fieldsEnabled.firstName ? 'Verrouiller' : 'Modifier'}
@@ -273,7 +295,7 @@ export default function Settings(): JSX.Element {
                           />
                         </FormControl>
                         <Button
-                          type="button"
+                          variant="outline"
                           onClick={() => toggleFieldModifier('phoneNumber')}
                         >
                           {fieldsEnabled.phoneNumber ? 'Verrouiller' : 'Modifier'}
@@ -298,7 +320,7 @@ export default function Settings(): JSX.Element {
                           />
                         </FormControl>
                         <Button
-                          type="button"
+                          variant="outline"
                           onClick={() => toggleFieldModifier('email')}
                         >
                           {fieldsEnabled.email ? 'Verrouiller' : 'Modifier'}
@@ -375,7 +397,7 @@ export default function Settings(): JSX.Element {
             </div>
             {/* Display userPhoneError message */}
             {userPhoneError && <FormMessage>{userPhoneError}</FormMessage>}
-            <Button type="button" onClick={togglePasswordChange} className="w-full">
+            <Button variant="outline" onClick={togglePasswordChange} className="w-full">
               {isPasswordChangeEnabled ? 'Annuler la modification du mot de passe' : 'Modifier le mot de passe'}
             </Button>
             <Button type="submit" className="w-full">

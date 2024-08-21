@@ -49,7 +49,7 @@ export function OrderDetails({ order }) {
       <SheetTrigger className="relative flex select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:opacity-50">
         Voir Détails
       </SheetTrigger>
-      <SheetContent className="h-full">
+      <SheetContent className="h-full max-h-[100vh] overflow-y-auto scrollbar-hide">
         <SheetHeader>
           <SheetTitle className="text-2xl font-bold">Détails de la commande</SheetTitle>
           <SheetDescription className="text-gray-500">

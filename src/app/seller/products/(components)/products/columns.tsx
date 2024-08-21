@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -15,6 +14,7 @@ import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { ImageCarousel } from "./view/ImageCarousel";
 import DeleteProductDialog from './delete/DeleteProductDialog';
+import EditProductDialog from './edit/EditProductDialog';
 
 // Define the type for Product with Inventory
 export type ProductWithInventory = {
@@ -211,6 +211,10 @@ export const columns: ColumnDef<ProductWithInventory>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
+            {/* Directly render EditProductDialog without wrapping it in DropdownMenuItem */}
+            <EditProductDialog product={product} />
+            <DropdownMenuSeparator />
+            {/* Directly render DeleteProductDialog without wrapping it in DropdownMenuItem */}
             <DeleteProductDialog productId={product.productID} productName={product.name} />
           </DropdownMenuContent>
         </DropdownMenu>

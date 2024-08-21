@@ -191,7 +191,7 @@ function SellerOrderTracker() {
                       {renderPaymentIcon(order.paymentID.paymentMethod)}
                       {order.paymentID.paymentMethod}
                     </dt>
-                    <dd>{order.paymentID.paymentID.slice(0, 6)} **** **** ****</dd>
+                    <dd>{order.paymentID.paymentID.slice(2, 8)} **** **** ****</dd>
                   </div>
                 </dl>
               </div>

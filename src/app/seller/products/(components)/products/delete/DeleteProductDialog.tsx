@@ -54,7 +54,7 @@ const DeleteProductDialog: React.FC<DeleteProductDialogProps> = ({ productId, pr
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="destructive" onClick={() => setIsOpen(true)}>
+        <Button variant="link" className="w-full text-sm font-medium leading-none" onClick={() => setIsOpen(true)}>
           Supprimer
         </Button>
       </DialogTrigger>

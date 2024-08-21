@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import connectMongoDb from '../../../../lib/backend/db/mongodb';
 import {  Product, User, Inventory, Order, OrderItem  } from '../../../../lib/backend/models/models';
 import { v2 as cloudinary } from 'cloudinary';
-
+import mongoose from 'mongoose';
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -102,16 +102,40 @@ export async function PATCH(req) {
     await connectMongoDb();
     const body = await req.json();
     const { productId, sellerID, name, description, detailedDescription, basePrice, quantity, categoryID, sku, brand, tags, warranty, returnPolicy, images } = body;
+    const productID=productId;
+    console.log('Parsed body:', body);
 
-    if (!productId || !sellerID) {
-      return NextResponse.json({ message: 'Product ID and Seller ID are required' }, { status: 400 });
-    }
+    // Use productID instead of _id to query
+    const product = await Product.findOne({ productID, sellerID });
 
-    const product = await Product.findOne({ _id: productId, sellerID });
     if (!product) {
+      console.error(`Product not found or does not belong to the seller`);
       return NextResponse.json({ message: 'Product not found or does not belong to the seller' }, { status: 404 });
     }
 
+    // If new images are provided, delete the old images from Cloudinary
+    if (images && images.length > 0) {
+      if (product.images && product.images.length > 0) {
+        await Promise.all(
+          product.images.map(async (imageUrl) => {
+            const publicId = imageUrl.split('/').pop()?.split('.')[0];
+            if (publicId) {
+              try {
+                await cloudinary.uploader.destroy(publicId);
+                console.log(`Deleted image from Cloudinary: ${publicId}`);
+              } catch (error) {
+                console.error(`Failed to delete image ${publicId} from Cloudinary:`, error);
+              }
+            }
+          })
+        );
+      }
+
+      // Update the product's images with the new URLs
+      product.images = images;
+    }
+
+    // Update other product fields
     if (name) product.name = name;
     if (description) product.description = description;
     if (detailedDescription) product.detailedDescription = detailedDescription;
@@ -122,11 +146,11 @@ export async function PATCH(req) {
     if (tags) product.tags = tags;
     if (warranty) product.warranty = warranty;
     if (returnPolicy) product.returnPolicy = returnPolicy;
-    if (images) product.images = images; // Update images array if new images are provided
 
     await product.save();
 
-    const inventory = await Inventory.findOne({ productID: productId, sellerID });
+    // Update the inventory associated with the product
+    const inventory = await Inventory.findOne({ productID, sellerID });
     if (inventory) {
       if (quantity !== undefined) {
         const difference = quantity - inventory.initialQuantity;
@@ -143,6 +167,8 @@ export async function PATCH(req) {
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }
+
+
 export async function DELETE(req) {
   try {
     await connectMongoDb();
