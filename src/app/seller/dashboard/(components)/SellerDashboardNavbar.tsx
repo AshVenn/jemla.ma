@@ -8,7 +8,7 @@ import { HamburgerMenuIcon } from '@radix-ui/react-icons'
 import { LayoutDashboard, Box, ShoppingCart, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { ReactNode } from 'react'
-import JemlaNoText from '@/lib/assets/JemlaNoText'
+import JemlaWithText from '@/lib/assets/JemlaWithText'
 
 function VendeurDashboardNavbar({ children }: { children: ReactNode }) {
   return (
@@ -26,7 +26,7 @@ function VendeurDashboardNavbar({ children }: { children: ReactNode }) {
                       <Link href="/seller/dashboard">
                       <SheetTitle>
                         <div className="flex items-center justify-center">
-                          <JemlaNoText width="140" height="140" />
+                          <JemlaWithText width="140" height="140" />
                         </div>
                       </SheetTitle>
                     </Link>

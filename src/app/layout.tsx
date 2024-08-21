@@ -21,7 +21,7 @@ export default async  function RootLayout({ children }: RootLayoutProps) {
     
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Ajoutez ici les éléments nécessaires dans le head */}
+      <link rel='icon' href='/jemla.maIcon.svg' type="image/svg+xml" />
       </head>
       <body className={cn(
         "w-full min-h-screen bg-background font-sans antialiased",

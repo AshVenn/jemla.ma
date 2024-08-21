@@ -111,7 +111,7 @@ export default function OrdersTable<TData, TValue>({
     <>
       <div className='overflow-auto'>
         <div className='flex flex-col md:flex-row items-center justify-between'>
-          <div className="w-full md:w-auto mb-4 md:mb-0">
+          <div className="w-full md:w-auto mb-4 md:mb-0 mt-4 sm:mt-2">
             <blockquote className="border-l-2 pl-4 md:pl-6 italic text-sm md:text-base">
               "Vendre, c'est convaincre avec élégance."
             </blockquote>

@@ -1,9 +1,11 @@
-import React from 'react'
+import React from 'react';
+import JemlaWithText from '@/lib/assets/JemlaWithText';
+import SellerDashboardSkeleton from './(components)/SellerDashboardSkeleton';
 
-function loading() {
+const Loading: React.FC = () => {
   return (
-    <div>loading</div>
-  )
-}
+    <SellerDashboardSkeleton/>
+  );
+};
 
-export default loading
+export default Loading;
