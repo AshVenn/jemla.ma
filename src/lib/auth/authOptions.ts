@@ -27,7 +27,7 @@ const authOptions = {
           }
 
           return {
-            id: user._id,
+            id: user._id.toString(),
             username: user.username,
             email: user.email,
             firstName: user.firstName,
@@ -44,8 +44,8 @@ const authOptions = {
     }),
   ],
   session: {
-    jwt: true, // Use JWT for session tokens
-    maxAge: 2 * 24 * 60 * 60, // 2 days in seconds
+    jwt: true,
+    maxAge: 2 * 24 * 60 * 60, // 2 days
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -62,16 +62,14 @@ const authOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id;
-        session.user.username = token.username;
-        session.user.email = token.email;
-        session.user.firstName = token.firstName;
-        session.user.lastName = token.lastName;
-        session.user.type = token.type;
-        session.user.phoneNumber = token.phoneNumber;
-        session.user.avatarImage = token.avatarImage;
-      }
+      session.user.id = token.id;
+      session.user.username = token.username;
+      session.user.email = token.email;
+      session.user.firstName = token.firstName;
+      session.user.lastName = token.lastName;
+      session.user.type = token.type;
+      session.user.phoneNumber = token.phoneNumber;
+      session.user.avatarImage = token.avatarImage;
       return session;
     },
   },
