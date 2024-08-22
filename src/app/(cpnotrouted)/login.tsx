@@ -20,47 +20,52 @@ const formSchema = z.object({
   password: z.string().min(6, "Le mot de passe doit comporter au moins 6 caractères"),
 });
 
+type FormSchemaType = z.infer<typeof formSchema>;
+
 export default function Login() {
   const router = useRouter(); // useRouter de next/navigation
   const [logInError, setLogInError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false); // État pour gérer le chargement
 
   // Configurer le formulaire avec react-hook-form et zod resolver
-  const form = useForm({
+  const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
   });
-
   // Fonction pour gérer la soumission du formulaire
-  const onSubmit = async (data) => {
-    setLoading(true); // Démarrer le chargement lors de la soumission du formulaire
+  const onSubmit = async (data: FormSchemaType) => {
+    setLoading(true);
     try {
       const res = await signIn("credentials", {
         email: data.email,
         password: data.password,
         redirect: false,
       });
-
-      console.log("Réponse de SignIn:", res); // Afficher la réponse de signIn
-
+  
+      // Check if `res` is defined before trying to access its properties
+      if (!res) {
+        setLogInError("Une erreur est survenue lors de la connexion. Veuillez réessayer.");
+        setLoading(false);
+        return;
+      }
+  
+      console.log("Réponse de SignIn:", res);
+  
       if (res.error) {
-        // Utiliser des messages d'erreur plus spécifiques
         if (res.error === 'CredentialsSignin') {
           setLogInError("Identifiants incorrects. Veuillez vérifier votre email et mot de passe.");
         } else {
           setLogInError("Une erreur est survenue lors de la connexion. Veuillez réessayer.");
         }
-        setLoading(false); // Arrêter le chargement en cas d'erreur
+        setLoading(false);
         return;
       }
-
-      // Récupérer la session après une connexion réussie
+  
       const session = await getSession();
       console.log("Objet Session:", session);
-
-      // Supposant que vous avez accès au type d'utilisateur après la connexion
+  
       const userType = session?.user?.type;
-      console.log("Type d'utilisateur:", userType); // Vérifier le type d'utilisateur dans la console
-
+      console.log("Type d'utilisateur:", userType);
+  
       switch (userType) {
         case 'seller':
           console.log("Redirection vers le tableau de bord vendeur");
@@ -76,16 +81,16 @@ export default function Login() {
           break;
         default:
           console.log("Type d'utilisateur inconnu:", userType);
-          // Gérer les autres cas ou types inattendus
           break;
       }
     } catch (e) {
       console.log(e);
       setLogInError("Une erreur inattendue est survenue. Veuillez réessayer plus tard.");
     } finally {
-      setLoading(false); // Arrêter le chargement après la fin du traitement
+      setLoading(false);
     }
   };
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
