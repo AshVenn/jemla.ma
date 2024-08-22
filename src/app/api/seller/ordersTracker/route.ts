@@ -48,7 +48,12 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ orders: ordersWithItems, totalOrders }, { status: 200 });
   } catch (error) {
-    console.error('Error fetching orders:', error);
-    return NextResponse.json({ message: 'Error fetching orders', error: error.message }, { status: 500 });
+    if (error instanceof Error) {
+      console.error('Error fetching orders:', error.message);
+      return NextResponse.json({ message: 'Error fetching orders', error: error.message }, { status: 500 });
+    } else {
+      console.error('Unknown error fetching orders:', error);
+      return NextResponse.json({ message: 'Unknown error fetching orders' }, { status: 500 });
+    }
   }
 }

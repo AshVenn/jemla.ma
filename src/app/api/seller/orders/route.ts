@@ -1,9 +1,8 @@
-// api/seller/orders/route.js
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import connectMongoDb from '../../../../lib/backend/db/mongodb';
 import { Order, OrderItem, User } from '../../../../lib/backend/models/models';
 
-export async function GET(req) {
+export async function GET(req: NextRequest) {
   try {
     await connectMongoDb();
 

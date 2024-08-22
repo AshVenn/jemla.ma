@@ -20,11 +20,11 @@ export async function GET(req: NextRequest) {
     await connectMongoDb();
 
     const now = new Date();
-    let startDate: Date;
+    let startDate: Date | undefined;
     let endDate = new Date();
 
-    let prevStartDate: Date;
-    let prevEndDate: Date;
+    let prevStartDate: Date | undefined;
+    let prevEndDate: Date | undefined;
 
     // Calculate start and end dates for current and previous periods
     if (period === 'month') {
@@ -41,6 +41,11 @@ export async function GET(req: NextRequest) {
       // Previous year
       prevStartDate = new Date(now.getFullYear() - 1, 0, 1);
       prevEndDate = new Date(now.getFullYear() - 1, 11, 31); // Last day of the previous year
+    }
+
+    // Ensure dates are defined before using them
+    if (!startDate || !prevStartDate || !prevEndDate) {
+      return NextResponse.json({ error: 'Failed to calculate date ranges' }, { status: 500 });
     }
 
     // Fetch current period revenue

@@ -16,7 +16,12 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ message: "Numéro de téléphone disponible" });
   } catch (error) {
-    console.error("Error checking phone number:", error.message);
-    return NextResponse.json({ error: "Erreur lors de la vérification du numéro de téléphone" }, { status: 500 });
+    if (error instanceof Error) {
+      console.error("Error checking phone number:", error.message);
+      return NextResponse.json({ error: "Erreur lors de la vérification du numéro de téléphone" }, { status: 500 });
+    } else {
+      console.error("Unknown error occurred:", error);
+      return NextResponse.json({ error: "Erreur inconnue lors de la vérification du numéro de téléphone" }, { status: 500 });
+    }
   }
 }

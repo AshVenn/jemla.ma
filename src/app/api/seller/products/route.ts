@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import connectMongoDb from '../../../../lib/backend/db/mongodb';
-import {  Product, User, Inventory, Order, OrderItem  } from '../../../../lib/backend/models/models';
+import { Product, User, Inventory, Order, OrderItem } from '../../../../lib/backend/models/models';
 import { v2 as cloudinary } from 'cloudinary';
 import mongoose from 'mongoose';
 
@@ -10,7 +10,8 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export async function GET(req) {
+// Type the `req` parameter as `NextRequest`
+export async function GET(req: NextRequest) {
   try {
     await connectMongoDb();
 
@@ -41,12 +42,13 @@ export async function GET(req) {
 
     return NextResponse.json(productsWithInventory, { status: 200 });
   } catch (error) {
-    console.error('Error fetching products:', error);
+    console.error('Error fetching products:', (error instanceof Error) ? error.message : error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }
 
-export async function POST(req) {
+// Type the `req` parameter as `NextRequest`
+export async function POST(req: NextRequest) {
   try {
     await connectMongoDb();
     const body = await req.json();
@@ -92,50 +94,47 @@ export async function POST(req) {
 
     return NextResponse.json({ message: 'Product and inventory added successfully', product: newProduct }, { status: 201 });
   } catch (error) {
-    console.error('Error adding product and inventory:', error);
+    console.error('Error adding product and inventory:', (error instanceof Error) ? error.message : error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }
 
-export async function PATCH(req) {
+// Type the `req` parameter as `NextRequest`
+export async function PATCH(req: NextRequest) {
   try {
     await connectMongoDb();
     const body = await req.json();
     const { productId, sellerID, name, description, detailedDescription, basePrice, quantity, categoryID, sku, brand, tags, warranty, returnPolicy, images } = body;
-    const productID=productId;
+    const productID = productId;
     console.log('Parsed body:', body);
 
-    // Use productID instead of _id to query
     const product = await Product.findOne({ productID, sellerID });
 
     if (!product) {
-      console.error(`Product not found or does not belong to the seller`);
+      console.error('Product not found or does not belong to the seller');
       return NextResponse.json({ message: 'Product not found or does not belong to the seller' }, { status: 404 });
     }
 
-    // If new images are provided, delete the old images from Cloudinary
     if (images && images.length > 0) {
       if (product.images && product.images.length > 0) {
         await Promise.all(
-          product.images.map(async (imageUrl) => {
+          product.images.map(async (imageUrl: string) => {
             const publicId = imageUrl.split('/').pop()?.split('.')[0];
             if (publicId) {
               try {
                 await cloudinary.uploader.destroy(publicId);
                 console.log(`Deleted image from Cloudinary: ${publicId}`);
               } catch (error) {
-                console.error(`Failed to delete image ${publicId} from Cloudinary:`, error);
+                console.error(`Failed to delete image ${publicId} from Cloudinary:`, (error instanceof Error) ? error.message : error);
               }
             }
           })
         );
       }
 
-      // Update the product's images with the new URLs
       product.images = images;
     }
 
-    // Update other product fields
     if (name) product.name = name;
     if (description) product.description = description;
     if (detailedDescription) product.detailedDescription = detailedDescription;
@@ -149,13 +148,12 @@ export async function PATCH(req) {
 
     await product.save();
 
-    // Update the inventory associated with the product
     const inventory = await Inventory.findOne({ productID, sellerID });
     if (inventory) {
       if (quantity !== undefined) {
         const difference = quantity - inventory.initialQuantity;
         inventory.initialQuantity = quantity;
-        inventory.remainingQuantity += difference; // Adjust remaining based on the difference
+        inventory.remainingQuantity += difference;
       }
       if (basePrice !== undefined) inventory.price = basePrice;
       await inventory.save();
@@ -163,13 +161,13 @@ export async function PATCH(req) {
 
     return NextResponse.json({ message: 'Product and inventory updated successfully', product }, { status: 200 });
   } catch (error) {
-    console.error('Error updating product and inventory:', error);
+    console.error('Error updating product and inventory:', (error instanceof Error) ? error.message : error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }
 
-
-export async function DELETE(req) {
+// Type the `req` parameter as `NextRequest`
+export async function DELETE(req: NextRequest) {
   try {
     await connectMongoDb();
     const { searchParams } = new URL(req.url);
@@ -180,7 +178,6 @@ export async function DELETE(req) {
       return NextResponse.json({ message: 'Product ID and Seller ID are required' }, { status: 400 });
     }
 
-    // Check for ongoing orders
     const ongoingOrders = await OrderItem.find({ productID: productId }).populate('orderID');
     const hasOngoingOrders = ongoingOrders.some(orderItem => {
       return !['Delivered', 'Cancelled'].includes(orderItem.orderID.status);
@@ -191,7 +188,6 @@ export async function DELETE(req) {
       return NextResponse.json({ message: 'Cannot delete product with ongoing orders' }, { status: 400 });
     }
 
-    // Find the product by productID and delete images from Cloudinary
     const product = await Product.findOne({ productID: productId });
     if (!product) {
       console.error(`Product ${productId} could not be found`);
@@ -199,27 +195,31 @@ export async function DELETE(req) {
     }
 
     if (product.images) {
-      await Promise.all(product.images.map(async (imageUrl) => {
-        const publicId = imageUrl.split('/').pop().split('.')[0];
-        try {
-          await cloudinary.uploader.destroy(publicId);
-          console.log(`Deleted image from Cloudinary: ${publicId}`);
-        } catch (error) {
-          console.error(`Failed to delete image ${publicId} from Cloudinary:`, error);
+      await Promise.all(product.images.map(async (imageUrl: string) => {
+        const publicId = imageUrl.split('/').pop()?.split('.')[0];
+        
+        if (publicId) {  // Ensure publicId is defined
+          try {
+            await cloudinary.uploader.destroy(publicId);
+            console.log(`Deleted image from Cloudinary: ${publicId}`);
+          } catch (error) {
+            console.error(`Failed to delete image ${publicId} from Cloudinary:`, (error instanceof Error) ? error.message : error);
+          }
+        } else {
+          console.warn(`No publicId found for imageUrl: ${imageUrl}`);
         }
       }));
     }
+    
 
-    // Delete inventory
     await Inventory.deleteMany({ productID: productId, sellerID: sellerId });
 
-    // Delete product
     await Product.findOneAndDelete({ productID: productId });
     console.log(`Product ${productId} deleted successfully`);
 
     return NextResponse.json({ message: 'Product and associated data deleted successfully' }, { status: 200 });
   } catch (error) {
-    console.error('Error deleting product:', error);
+    console.error('Error deleting product:', (error instanceof Error) ? error.message : error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }

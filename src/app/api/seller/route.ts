@@ -2,7 +2,7 @@ import connectMongoDB from "@/lib/backend/db/mongodb";
 import { User } from "@/lib/backend/models/models";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "./../auth/[...nextauth]/route";
+import authOptions from "@/lib/auth/authOptions";
 
 export async function PUT(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -38,7 +38,12 @@ export async function PUT(req: NextRequest) {
 
     return NextResponse.json(user);
   } catch (error) {
-    console.error("Error updating user:", error.message);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    if (error instanceof Error) {
+      console.error("Error updating user:", error.message);
+      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    } else {
+      console.error("Unknown error occurred:", error);
+      return NextResponse.json({ error: "Unknown error occurred" }, { status: 500 });
+    }
   }
 }

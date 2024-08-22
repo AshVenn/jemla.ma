@@ -39,7 +39,13 @@ export async function PUT(req: NextRequest) {
 
     return NextResponse.json(user);
   } catch (error) {
-    console.error("Error updating user:", error.message);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    if (error instanceof Error) {
+      console.error("Error updating user:", error.message);
+      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    } else {
+      // Handle non-Error exceptions (if needed)
+      console.error("Unknown error occurred:", error);
+      return NextResponse.json({ error: "Unknown error" }, { status: 500 });
+    }
   }
 }
