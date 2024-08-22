@@ -4,7 +4,8 @@ import bcrypt from "bcryptjs";
 import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-export const authOptions = {
+// Remove the `export` from `authOptions`
+const authOptions = {
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -44,8 +45,8 @@ export const authOptions = {
     }),
   ],
   session: {
-    jwt: true,
-    maxAge: 2 * 24 * 60 * 60, // 2 days
+    jwt: true, // Use JWT for session tokens
+    maxAge: 2 * 24 * 60 * 60, // 2 days in seconds
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -83,6 +84,4 @@ export const authOptions = {
 
 const handler = NextAuth(authOptions);
 
-// Export the handler for each HTTP method separately
-export const GET = NextAuth(authOptions);
-export const POST = NextAuth(authOptions);
+export { handler as GET, handler as POST };
