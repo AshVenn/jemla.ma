@@ -44,8 +44,8 @@ export const authOptions = {
     }),
   ],
   session: {
-    jwt: true, // Use JWT for session tokens
-    maxAge: 2 * 24 * 60 * 60, // 2 days in seconds
+    jwt: true,
+    maxAge: 2 * 24 * 60 * 60, // 2 days
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -83,4 +83,6 @@ export const authOptions = {
 
 const handler = NextAuth(authOptions);
 
-export { handler as GET, handler as POST };
+// Export the handler for each HTTP method separately
+export const GET = handler;
+export const POST = handler;
