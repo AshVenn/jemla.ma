@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Loader2 } from "lucide-react"; // Import the Loader2 icon
 
 // Définir le schéma en utilisant zod avec des messages de validation en français
 const formSchema = z.object({
@@ -22,6 +23,7 @@ const formSchema = z.object({
 export default function Login() {
   const router = useRouter(); // useRouter de next/navigation
   const [logInError, setLogInError] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(false); // État pour gérer le chargement
 
   // Configurer le formulaire avec react-hook-form et zod resolver
   const form = useForm({
@@ -30,6 +32,7 @@ export default function Login() {
 
   // Fonction pour gérer la soumission du formulaire
   const onSubmit = async (data) => {
+    setLoading(true); // Démarrer le chargement lors de la soumission du formulaire
     try {
       const res = await signIn("credentials", {
         email: data.email,
@@ -46,6 +49,7 @@ export default function Login() {
         } else {
           setLogInError("Une erreur est survenue lors de la connexion. Veuillez réessayer.");
         }
+        setLoading(false); // Arrêter le chargement en cas d'erreur
         return;
       }
 
@@ -78,6 +82,8 @@ export default function Login() {
     } catch (e) {
       console.log(e);
       setLogInError("Une erreur inattendue est survenue. Veuillez réessayer plus tard.");
+    } finally {
+      setLoading(false); // Arrêter le chargement après la fin du traitement
     }
   };
 
@@ -117,8 +123,8 @@ export default function Login() {
                 )}
               />
               {logInError && <FormMessage>{logInError}</FormMessage>}
-              <Button type="submit" className="w-full">
-                Connexion
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Connexion"}
               </Button>
             </form>
           </Form>

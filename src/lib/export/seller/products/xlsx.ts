@@ -1,13 +1,13 @@
 import xlsx from 'json-as-xlsx';
 import { ColumnDef } from '@tanstack/react-table';
 
-function excelExport(data: any[], columns: ColumnDef<any, any>[]) {
+function excelExport(data: any[], columns: ColumnDef<any, any>[], columnLabels: any) {
   console.log({ data, columns });
 
   const columnsForExport = columns
     .filter(col => col.accessorKey && col.accessorKey !== 'createdAt' && col.accessorKey !== 'updatedAt' && col.accessorKey !== 'images')
     .map(col => ({
-      label: col.accessorKey,
+      label: columnLabels[col.accessorKey as keyof typeof columnLabels] || col.accessorKey,
       value: (row: any) => {
         const value = row[col.accessorKey as keyof typeof row];
         if (col.accessorKey === 'available') {
@@ -28,19 +28,27 @@ function excelExport(data: any[], columns: ColumnDef<any, any>[]) {
     return newItem;
   });
 
+  const excelData = [
+    {
+      sheet: "Produits",
+      columns: columnsForExport.map(col => ({
+        label: col.label,
+        value: col.label,
+        style: {
+          font: { color: { rgb: "FFFFFF" } }, // Text color for header
+          fill: { patternType: "solid", fgColor: { rgb: "161517" } }, // Background color for header
+          alignment: { horizontal: "center" } // Center text
+        }
+      })),
+      content: content
+    }
+  ];
+
   const settings = {
     fileName: "Produits",
     extraLength: 3,
     writeOptions: {}
   };
-
-  const excelData = [
-    {
-      sheet: "Produits",
-      columns: columnsForExport.map(col => ({ label: col.label, value: col.label })),
-      content: content
-    }
-  ];
 
   xlsx(excelData, settings);
 }

@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton'; // Assuming you have the Sk
 
 const ProductTableSkeleton = () => {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-8 space-y-6">
       {/* Page Title Skeleton */}
       <Skeleton className="h-8 w-1/4 mb-6" />
 

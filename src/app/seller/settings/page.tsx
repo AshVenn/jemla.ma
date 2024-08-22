@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useSession, signIn } from 'next-auth/react';
 import { CldImage } from 'next-cloudinary';
+import { Separator } from '@/components/ui/separator';
 
 const formSchema = z.object({
   username: z.string().min(2, 'Nom d’utilisateur invalide'),
@@ -198,8 +199,8 @@ export default function Settings(): JSX.Element {
   };
 
   return (
-    <div className="flex items-center justify-center p-4 md:p-0">
-      <div className="w-full max-w-4xl p-8">
+    <div className="flex items-center justify-center">
+      <div className="w-full max-w-4xl p-8 md:p-4 sm:p-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-8">
             <div className="flex flex-wrap -mx-4">
@@ -226,6 +227,7 @@ export default function Settings(): JSX.Element {
                           {fieldsEnabled.username ? 'Verrouiller' : 'Modifier'}
                         </Button>
                       </div>
+                      <Separator/>
                       <FormMessage>{form.formState.errors.username?.message}</FormMessage>
                     </FormItem>
                   )}
@@ -252,6 +254,7 @@ export default function Settings(): JSX.Element {
                         </Button>
                       </div>
                       <FormMessage>{form.formState.errors.lastName?.message}</FormMessage>
+                      <Separator/>
                     </FormItem>
                   )}
                 />
@@ -277,6 +280,7 @@ export default function Settings(): JSX.Element {
                         </Button>
                       </div>
                       <FormMessage>{form.formState.errors.firstName?.message}</FormMessage>
+                      <Separator/>
                     </FormItem>
                   )}
                 />
@@ -302,6 +306,7 @@ export default function Settings(): JSX.Element {
                         </Button>
                       </div>
                       <FormMessage>{form.formState.errors.phoneNumber?.message}</FormMessage>
+                      <Separator/>
                     </FormItem>
                   )}
                 />
@@ -346,6 +351,7 @@ export default function Settings(): JSX.Element {
                             <Input type="password" placeholder="Mot de Passe" {...field} />
                           </FormControl>
                           <FormMessage>{form.formState.errors.password?.message}</FormMessage>
+                          <Separator/>
                         </FormItem>
                       )}
                     />
@@ -359,6 +365,7 @@ export default function Settings(): JSX.Element {
                             <Input type="password" placeholder="Confirmer le Mot de Passe" {...field} />
                           </FormControl>
                           <FormMessage>{form.formState.errors.confirmPassword?.message}</FormMessage>
+                          <Separator/>
                         </FormItem>
                       )}
                     />
@@ -369,7 +376,7 @@ export default function Settings(): JSX.Element {
                   name="picture"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Image de Profil</FormLabel>
+                      <FormLabel className='mt-2'>Image de Profil</FormLabel>
                       <div className="flex items-center space-x-4">
                         {session?.user?.avatarImage && (
                           <CldImage

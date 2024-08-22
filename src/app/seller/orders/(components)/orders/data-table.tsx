@@ -30,8 +30,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import excelExport from '../../../../../lib/export/seller/products/xlsx';
-import pdfExport from '../../../../../lib/export/seller/products/pdf';
+import excelExport from '../../../../../lib/export/seller/orders/xlsx';
+import pdfExport from '../../../../../lib/export/seller/orders/pdf';
 import { columnLabels } from './columns';
 import { Badge } from '@/components/ui/badge';
 
@@ -117,10 +117,10 @@ export default function OrdersTable<TData, TValue>({
             </blockquote>
           </div>
           <div className="py-4 flex items-center space-x-2">
-            <Button onClick={() => excelExport(table.getRowModel().rows.map(row => row.original), columns)}>
+            <Button onClick={() => excelExport(table.getRowModel().rows.map(row => row.original), columns, columnLabels,orderStatus)}>
               Excel
             </Button>
-            <Button onClick={() => pdfExport(table.getRowModel().rows.map(row => row.original), columns)}>
+            <Button onClick={() => pdfExport(table.getRowModel().rows.map(row => row.original), columns, columnLabels,orderStatus)}>
               PDF
             </Button>
             <DropdownMenu>

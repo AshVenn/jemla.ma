@@ -98,12 +98,12 @@ export function ProductTable<TData, TValue>({
   return (
     <>
       <div className='overflow-auto'>
-        <div className="py-4 flex items-center justify-end space-x-2">
+        <div className="py-2 flex items-center justify-end space-x-2">
           <AjouterDialog />
-          <Button className='ml-2' onClick={() => excelExport(table.getRowModel().rows.map(row => row.original), columns)}>
+          <Button className='ml-2' onClick={() => excelExport(table.getRowModel().rows.map(row => row.original), columns,columnLabels)}>
             Excel
           </Button>
-          <Button className='ml-2 mr-2' onClick={() => pdfExport(table.getRowModel().rows.map(row => row.original), columns)}>
+          <Button className='ml-2 mr-2' onClick={() => pdfExport(table.getRowModel().rows.map(row => row.original), columns,columnLabels)}>
             PDF
           </Button>
           <DropdownMenu>
