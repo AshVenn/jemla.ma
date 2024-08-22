@@ -2,14 +2,23 @@ import connectMongoDB from "@/lib/backend/db/mongodb";
 import { User } from "@/lib/backend/models/models";
 import bcrypt from "bcryptjs";
 import CredentialsProvider from "next-auth/providers/credentials";
-import NextAuth from "next-auth/next";
+import NextAuth, { AuthOptions } from "next-auth";
+import { JWT } from "next-auth/jwt";
+import { Session } from "next-auth";
 
-const authOptions = {
+export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: "credentials",
-      credentials: {},
+      credentials: {
+        email: { label: "Email", type: "text", placeholder: "email@example.com" },
+        password: { label: "Password", type: "password" },
+      },
       async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Email and password must be provided");
+        }
+
         const { email, password } = credentials;
 
         try {
@@ -37,18 +46,18 @@ const authOptions = {
             avatarImage: user.avatarImage,
           };
         } catch (error) {
-          console.error("Authentication error:", error.message);
+          console.error("Authentication error:", error instanceof Error ? error.message : error);
           return null;
         }
       },
     }),
   ],
   session: {
-    jwt: true,
+    strategy: "jwt",
     maxAge: 2 * 24 * 60 * 60, // 2 days
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: JWT; user?: any }) {
       if (user) {
         token.id = user.id;
         token.username = user.username;
@@ -61,7 +70,7 @@ const authOptions = {
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
       session.user.id = token.id;
       session.user.username = token.username;
       session.user.email = token.email;

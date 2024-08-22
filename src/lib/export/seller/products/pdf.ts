@@ -2,7 +2,11 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { ColumnDef } from '@tanstack/react-table';
 
-function pdfExport(data: any[], columns: ColumnDef<any, any>[], columnLabels: any) {
+type ColumnWithAccessor = ColumnDef<any, any> & {
+  accessorKey?: string;
+};
+
+function pdfExport(data: any[], columns: ColumnWithAccessor[], columnLabels: any) {
   console.log({ data, columns });
 
   const columnsForExport = columns

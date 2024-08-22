@@ -1,15 +1,37 @@
+interface Client {
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+interface OrderItem {
+  productID: {
+    name: string;
+  };
+  quantity: number;
+  price: number;
+}
+
+interface Order {
+  clientID: Client;
+  totalAmount: number;
+  status: keyof typeof orderStatus;
+  createdAt: Date;
+  items: OrderItem[];
+}
+
+const orderStatus = {
+  Pending: { label: "En attente", variant: "secondary" },
+  Processed: { label: "Traité", variant: "outline" },
+  Shipped: { label: "Expédié", variant: "outline" },
+  Delivered: { label: "Livré", variant: "secondary" },
+  Cancelled: { label: "Annulé", variant: "destructive" },
+};
+
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
-export default function exportOrderToPDF(order) {
-  const orderStatus: any = {
-    Pending: { label: "En attente", variant: "secondary" },
-    Processed: { label: "Traité", variant: "outline" },
-    Shipped: { label: "Expédié", variant: "outline" },
-    Delivered: { label: "Livré", variant: "secondary" },
-    Cancelled: { label: "Annulé", variant: "destructive" },
-  };
-  
+export default function exportOrderToPDF(order: Order) {
   const doc = new jsPDF();
   
   // Add title
@@ -30,7 +52,11 @@ export default function exportOrderToPDF(order) {
   
   // Add product details
   doc.text('Produits:', 14, 115);
-  const products = order.items.map(item => [item.productID.name, item.quantity, `€${item.price.toFixed(2)}`]);
+  const products = order.items.map((item: OrderItem) => [
+    item.productID.name,
+    item.quantity,
+    `€${item.price.toFixed(2)}`,
+  ]);
   
   doc.autoTable({
     startY: 125,

@@ -1,13 +1,36 @@
+interface Client {
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+interface OrderItem {
+  productID: {
+    name: string;
+  };
+  quantity: number;
+  price: number;
+}
+
+interface Order {
+  clientID: Client;
+  totalAmount: number;
+  status: keyof typeof orderStatus;
+  createdAt: Date;
+  items: OrderItem[];
+}
+
+const orderStatus = {
+  Pending: { label: "En attente", variant: "secondary" },
+  Processed: { label: "Traité", variant: "outline" },
+  Shipped: { label: "Expédié", variant: "outline" },
+  Delivered: { label: "Livré", variant: "secondary" },
+  Cancelled: { label: "Annulé", variant: "destructive" },
+};
+
 import xlsx from 'json-as-xlsx';
 
-export function exportOrderToExcel(order) {
-  const orderStatus: any = {
-    Pending: { label: "En attente", variant: "secondary" },
-    Processed: { label: "Traité", variant: "outline" },
-    Shipped: { label: "Expédié", variant: "outline" },
-    Delivered: { label: "Livré", variant: "secondary" },
-    Cancelled: { label: "Annulé", variant: "destructive" },
-  };
+export function exportOrderToExcel(order: Order) {
   const data = [
     {
       sheet: 'Détails de la commande',
@@ -16,7 +39,7 @@ export function exportOrderToExcel(order) {
         { label: 'Quantité', value: 'quantity' },
         { label: 'Prix', value: 'price' }
       ],
-      content: order.items.map(item => ({
+      content: order.items.map((item: OrderItem) => ({
         name: item.productID.name,
         quantity: item.quantity,
         price: item.price.toFixed(2)

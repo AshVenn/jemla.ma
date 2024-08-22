@@ -1,7 +1,11 @@
 import xlsx from 'json-as-xlsx';
 import { ColumnDef } from '@tanstack/react-table';
 
-function excelExport(data: any[], columns: ColumnDef<any, any>[], columnLabels: any) {
+type ColumnWithAccessor = ColumnDef<any, any> & {
+  accessorKey?: string;
+};
+
+function excelExport(data: any[], columns: ColumnWithAccessor[], columnLabels: any) {
   console.log({ data, columns });
 
   const columnsForExport = columns

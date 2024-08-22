@@ -65,7 +65,7 @@ orderSchema.index({ clientID: 1, sellerID: 1, status: 1 });
     orderID: { type: Schema.Types.ObjectId, ref: 'Order', required: true },
     addressID: { type: Schema.Types.ObjectId, ref: 'Address', required: true },
     courierID: { type: Schema.Types.ObjectId, ref: 'Courier' }, // Optional: link to the courier
-    shipmentDate: { type: Date, default: Date.now }, // Date when the shipment is created
+    shipmentDate: { type: Date, default: () => new Date() }, // Date when the shipment is created
     deliveryDate: { type: Date }, // Date when the shipment is delivered
     status: {
       type: String,
@@ -98,7 +98,7 @@ orderSchema.index({ clientID: 1, sellerID: 1, status: 1 });
     quantitySold: { type: Number, default: 0 }, // Quantity sold so far
     price: { type: Number, required: true }, // Seller-specific price
     lastRestockDate: { type: Date }, // Date of the last restock
-    lastUpdateDate: { type: Date, default: Date.now }, // Last update timestamp
+    lastUpdateDate: { type: Date, default: () => new Date() }, // Last update timestamp
     status: {
       type: String,
       enum: ['In Stock', 'Out of Stock', 'Discontinued'],
@@ -113,7 +113,7 @@ orderSchema.index({ clientID: 1, sellerID: 1, status: 1 });
   
   // Ensure lastUpdateDate is updated whenever the document is saved
   inventorySchema.pre('save', function(next) {
-    this.lastUpdateDate = Date.now();
+    this.lastUpdateDate = new Date();
     next();
   });
   
@@ -164,9 +164,10 @@ orderSchema.index({ clientID: 1, sellerID: 1, status: 1 });
   
   // Middleware to update the updatedAt field
   productSchema.pre('save', function(next) {
-    this.updatedAt = Date.now();
+    this.updatedAt = new Date(); 
     next();
   });
+  
   
   
 
