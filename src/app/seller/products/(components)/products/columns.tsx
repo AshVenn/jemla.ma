@@ -30,13 +30,32 @@ export type ProductWithInventory = {
   images: string[];
   quantity: number;
   quantityRemaining: number;
-  attributes?: { key: string, value: string }[];
+  attributes?: { key: string; value: string }[];
   brand?: string;
   averageRating?: number;
 };
 
+// Define the type for Product used in EditProductDialog
+interface Product {
+  productID: string;
+  sellerID: string;
+  name: string;
+  description?: string;
+  detailedDescription?: string;
+  basePrice: number;
+  quantity: number;
+  categoryID: string;
+  sku?: string;
+  brand?: string;
+  tags?: string[];
+  warranty?: string;
+  returnPolicy?: string;
+  available: boolean;
+  images?: string[];
+}
+
 // Mapping column IDs to French labels
-export const columnLabels: any = {
+export const columnLabels: Record<string, string> = {
   images: "Images",
   name: "Nom",
   description: "Description",
@@ -180,7 +199,7 @@ export const columns: ColumnDef<ProductWithInventory>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ getValue }) => new Date(getValue()).toLocaleDateString(),
+    cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString(),
   },
   {
     accessorKey: "updatedAt",
@@ -193,13 +212,25 @@ export const columns: ColumnDef<ProductWithInventory>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ getValue }) => new Date(getValue()).toLocaleDateString(),
+    cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString(),
   },
   {
     id: "actions",
     header: () => <Button variant="ghost">{columnLabels["actions"]}</Button>,
     cell: ({ row }) => {
-      const product = row.original;
+      const rowOriginal = row.original;
+
+      const product: Product = {
+        productID: rowOriginal.productID,
+        sellerID: rowOriginal.sellerID,
+        name: rowOriginal.name,
+        description: rowOriginal.description,
+        basePrice: rowOriginal.basePrice,
+        quantity: rowOriginal.quantity,
+        categoryID: rowOriginal.categoryID || '', // Default value if undefined
+        available: rowOriginal.available,
+        images: rowOriginal.images,
+      };
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -211,10 +242,9 @@ export const columns: ColumnDef<ProductWithInventory>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {/* Directly render EditProductDialog without wrapping it in DropdownMenuItem */}
+            {/* Render dialogs conditionally or with state management */}
             <EditProductDialog product={product} />
             <DropdownMenuSeparator />
-            {/* Directly render DeleteProductDialog without wrapping it in DropdownMenuItem */}
             <DeleteProductDialog productId={product.productID} productName={product.name} />
           </DropdownMenuContent>
         </DropdownMenu>

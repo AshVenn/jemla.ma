@@ -16,7 +16,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useSession, signIn } from 'next-auth/react';
 import { CldImage } from 'next-cloudinary';
-import { Separator } from '@/components/ui/separator';
 
 const formSchema = z.object({
   username: z.string().min(2, 'Nom d’utilisateur invalide'),
@@ -37,7 +36,7 @@ const formSchema = z.object({
     .refine((data) => data.startsWith('+212'), {
       message: 'Le numéro de téléphone doit commencer par +212',
     }),
-    picture: z
+  picture: z
     .any()
     .optional()
     .refine((file) => {
@@ -60,25 +59,7 @@ interface FormData {
   picture?: File | null; // Make it nullable
 }
 
-const uploadImage = async (image: File) => {
-  const formData = new FormData();
-  formData.append('file', image);
-  formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET);
-
-  const response = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, {
-    method: 'POST',
-    body: formData,
-  });
-
-  if (!response.ok) {
-    throw new Error("Erreur lors du téléchargement de l'image");
-  }
-
-  const data = await response.json();
-  return data.secure_url;
-};
-
-export default function Settings(): JSX.Element {
+const Settings: React.FC = () => {
   const { data: session } = useSession();
   const [userPhoneError, setuserPhoneError] = React.useState<string | null>(null);
   const [isPasswordChangeEnabled, setIsPasswordChangeEnabled] = React.useState(false);
@@ -95,20 +76,50 @@ export default function Settings(): JSX.Element {
     },
   });
 
-  const [fieldsEnabled, setFieldsEnabled] = React.useState({
+  const [fieldsEnabled, setFieldsEnabled] = React.useState<{
+    username: boolean;
+    email: boolean;
+    firstName: boolean;
+    lastName: boolean;
+    phoneNumber: boolean;
+    password?: boolean;
+    confirmPassword?: boolean;
+    picture?: boolean; // Add this line
+  }>({
     username: false,
     email: false,
     firstName: false,
     lastName: false,
     phoneNumber: false,
+    password: false,
+    confirmPassword: false,
   });
+
+  const uploadImage = async (image: File) => {
+    if (!image) {
+      throw new Error("Image file is required");
+    }
+    const formData = new FormData();
+    formData.append('file', image);
+    formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || '');
+
+    const response = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error("Erreur lors du téléchargement de l'image");
+    }
+
+    const data = await response.json();
+    return data.secure_url;
+  };
 
   const onSubmit = async (data: FormData) => {
     try {
-      // Clear any previous phone number error
       setuserPhoneError(null);
-  
-      // Step 1: Handle phone number validation only on form submission
+
       if (data.phoneNumber !== session?.user?.phoneNumber) {
         const checkPhoneResponse = await fetch('/api/seller/checkPhoneNumber', {
           method: 'POST',
@@ -117,20 +128,18 @@ export default function Settings(): JSX.Element {
           },
           body: JSON.stringify({ phoneNumber: data.phoneNumber }),
         });
-  
+
         if (checkPhoneResponse.status === 400) {
           setuserPhoneError('Le numéro de téléphone est déjà pris');
           return;
         }
       }
-  
-      // Step 2: Handle image upload if a new picture is provided
+
       let imageUrl = session?.user?.avatarImage;
       if (data.picture) {
         imageUrl = await uploadImage(data.picture);
       }
-  
-      // Step 3: Prepare data for updating the user information
+
       const updateData = {
         username: data.username,
         firstName: data.firstName,
@@ -139,8 +148,7 @@ export default function Settings(): JSX.Element {
         phoneNumber: data.phoneNumber,
         avatarImage: imageUrl,
       };
-  
-      // Step 4: Make the request to update user information in the database
+
       const response = await fetch('/api/seller', {
         method: 'PUT',
         headers: {
@@ -148,37 +156,34 @@ export default function Settings(): JSX.Element {
         },
         body: JSON.stringify(updateData),
       });
-  
+
       if (!response.ok) {
         throw new Error('Erreur lors de la mise à jour des informations');
       }
-  
+
       const result = await response.json();
-  
-      // Step 5: Update the session on the client side with the new user data
+
       if (result.user) {
         const signInResponse = await signIn('credentials', { redirect: false, ...result.user });
-        
-        if (!signInResponse.ok) {
+
+        if (signInResponse?.ok === false) {
           throw new Error('Échec de la mise à jour de la session');
         }
-        
+
         console.log('Utilisateur mis à jour et session rafraîchie');
       }
     } catch (e) {
       console.error('Erreur lors de la soumission du formulaire:', e);
-      // Optionally show an error message to the user here
     }
   };
-  
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       form.setValue('picture', file);
-      form.clearErrors('picture'); // Clear any previous picture errors
+      form.clearErrors('picture');
     } else {
-      form.setValue('picture', null); // Reset if no file is selected
+      form.setValue('picture', null);
     }
   };
 
@@ -192,15 +197,14 @@ export default function Settings(): JSX.Element {
   const togglePasswordChange = () => {
     setIsPasswordChangeEnabled((prev) => !prev);
     if (!isPasswordChangeEnabled) {
-      // Clear password fields if password change is disabled
       form.setValue('password', '');
       form.setValue('confirmPassword', '');
     }
   };
 
   return (
-    <div className="flex items-center justify-center">
-      <div className="w-full max-w-4xl p-8 md:p-4 sm:p-4">
+    <div className="flex items-center justify-center p-4 md:p-0">
+      <div className="w-full max-w-4xl p-8">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-8">
             <div className="flex flex-wrap -mx-4">
@@ -227,7 +231,6 @@ export default function Settings(): JSX.Element {
                           {fieldsEnabled.username ? 'Verrouiller' : 'Modifier'}
                         </Button>
                       </div>
-                      <Separator/>
                       <FormMessage>{form.formState.errors.username?.message}</FormMessage>
                     </FormItem>
                   )}
@@ -254,7 +257,6 @@ export default function Settings(): JSX.Element {
                         </Button>
                       </div>
                       <FormMessage>{form.formState.errors.lastName?.message}</FormMessage>
-                      <Separator/>
                     </FormItem>
                   )}
                 />
@@ -280,7 +282,6 @@ export default function Settings(): JSX.Element {
                         </Button>
                       </div>
                       <FormMessage>{form.formState.errors.firstName?.message}</FormMessage>
-                      <Separator/>
                     </FormItem>
                   )}
                 />
@@ -306,7 +307,6 @@ export default function Settings(): JSX.Element {
                         </Button>
                       </div>
                       <FormMessage>{form.formState.errors.phoneNumber?.message}</FormMessage>
-                      <Separator/>
                     </FormItem>
                   )}
                 />
@@ -351,7 +351,6 @@ export default function Settings(): JSX.Element {
                             <Input type="password" placeholder="Mot de Passe" {...field} />
                           </FormControl>
                           <FormMessage>{form.formState.errors.password?.message}</FormMessage>
-                          <Separator/>
                         </FormItem>
                       )}
                     />
@@ -365,7 +364,6 @@ export default function Settings(): JSX.Element {
                             <Input type="password" placeholder="Confirmer le Mot de Passe" {...field} />
                           </FormControl>
                           <FormMessage>{form.formState.errors.confirmPassword?.message}</FormMessage>
-                          <Separator/>
                         </FormItem>
                       )}
                     />
@@ -376,11 +374,10 @@ export default function Settings(): JSX.Element {
                   name="picture"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='mt-2'>Image de Profil</FormLabel>
+                      <FormLabel>Image de Profil</FormLabel>
                       <div className="flex items-center space-x-4">
                         {session?.user?.avatarImage && (
                           <CldImage
-                            cloudName={process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}
                             src={session.user.avatarImage}
                             alt="Avatar"
                             width="100"
@@ -415,4 +412,6 @@ export default function Settings(): JSX.Element {
       </div>
     </div>
   );
-}
+};
+
+export default Settings;

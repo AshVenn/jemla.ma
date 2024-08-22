@@ -63,12 +63,19 @@ const fetchCategories = async () => {
   return await response.json();
 };
 
-const uploadImageToCloudinary = async (image: File) => {
+const uploadImageToCloudinary = async (image: File): Promise<string> => {
+  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+
+  if (!uploadPreset || !cloudName) {
+    throw new Error('Configuration de Cloudinary manquante');
+  }
+
   const formData = new FormData();
   formData.append('file', image);
-  formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET);
+  formData.append('upload_preset', uploadPreset);
 
-  const response = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, {
+  const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
     method: 'POST',
     body: formData,
   });
@@ -80,6 +87,7 @@ const uploadImageToCloudinary = async (image: File) => {
   const data = await response.json();
   return data.secure_url;
 };
+
 
 const AddProduct: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
   const { data: session } = useSession();
@@ -136,14 +144,15 @@ const AddProduct: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
     const files = event.target.files;
     if (files && files[0]) {
       const newImages = form.getValues('images') || [];
-      newImages[index] = files[0];
+      newImages[index] = files[0]; // This should be a File
       form.setValue('images', newImages);
-
+  
       const newPreviews = [...previewUrls];
       newPreviews[index] = URL.createObjectURL(files[0]);
       setPreviewUrls(newPreviews);
     }
   };
+  
 
   if (isLoadingCategories) {
     return <div>Chargement...</div>;
@@ -320,77 +329,77 @@ const AddProduct: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
               />
               {/* Image Upload Inputs */}
               <FormField
-                control={form.control}
-                name="images[0]"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Image 1</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleFileChange(e, 0)}
-                      />
-                    </FormControl>
-                    {previewUrls[0] && (
-                      <img
-                        src={previewUrls[0]}
-                        alt="Preview 1"
-                        className="mt-2 max-h-20"
-                      />
-                    )}
-                    <FormMessage>{form.formState.errors.images?.[0]?.message}</FormMessage>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="images[1]"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Image 2</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleFileChange(e, 1)}
-                      />
-                    </FormControl>
-                    {previewUrls[1] && (
-                      <img
-                        src={previewUrls[1]}
-                        alt="Preview 2"
-                        className="mt-2 max-h-20"
-                      />
-                    )}
-                    <FormMessage>{form.formState.errors.images?.[1]?.message}</FormMessage>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="images[2]"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Image 3</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleFileChange(e, 2)}
-                      />
-                    </FormControl>
-                    {previewUrls[2] && (
-                      <img
-                        src={previewUrls[2]}
-                        alt="Preview 3"
-                        className="mt-2 max-h-20"
-                      />
-                    )}
-                    <FormMessage>{form.formState.errors.images?.[2]?.message}</FormMessage>
-                  </FormItem>
-                )}
-              />
+                  control={form.control}
+                  name="images"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Image 1</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleFileChange(e, 0)}
+                        />
+                      </FormControl>
+                      {previewUrls[0] && (
+                        <img
+                          src={previewUrls[0]}
+                          alt="Preview 1"
+                          className="mt-2 max-h-20"
+                        />
+                      )}
+                      <FormMessage>{form.formState.errors.images?.[0]?.message}</FormMessage>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="images"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Image 2</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleFileChange(e, 1)}
+                        />
+                      </FormControl>
+                      {previewUrls[1] && (
+                        <img
+                          src={previewUrls[1]}
+                          alt="Preview 2"
+                          className="mt-2 max-h-20"
+                        />
+                      )}
+                      <FormMessage>{form.formState.errors.images?.[1]?.message}</FormMessage>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="images"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Image 3</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleFileChange(e, 2)}
+                        />
+                      </FormControl>
+                      {previewUrls[2] && (
+                        <img
+                          src={previewUrls[2]}
+                          alt="Preview 3"
+                          className="mt-2 max-h-20"
+                        />
+                      )}
+                      <FormMessage>{form.formState.errors.images?.[2]?.message}</FormMessage>
+                    </FormItem>
+                  )}
+                />
               <Button type="submit" className="w-full" disabled={mutation.isLoading}>
                 {mutation.isLoading ? 'Ajout du produit...' : 'Ajouter le produit'}
               </Button>
