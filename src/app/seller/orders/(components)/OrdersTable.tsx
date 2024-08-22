@@ -1,4 +1,3 @@
-// app/commandes/page.tsx
 'use client';
 
 import React from 'react';
@@ -21,7 +20,13 @@ export default function CommandesPage() {
 
   const { data: orders, isLoading, isError } = useQuery<Order[], Error>(
     ['orders', sellerId],
-    () => fetchOrders(sellerId),
+    () => {
+      if (sellerId) {
+        return fetchOrders(sellerId);
+      } else {
+        throw new Error('Seller ID is not available');
+      }
+    },
     { enabled: !!sellerId }
   );
 
@@ -35,8 +40,7 @@ export default function CommandesPage() {
 
   return (
     <div>
-      
-        <OrdersTable columns={columns} data={orders || []} />
-      </div>
+      <OrdersTable columns={columns} data={orders || []} />
+    </div>
   );
 }
