@@ -28,7 +28,7 @@ export type Order = {
 };
 
 // Mapping column IDs to French labels
-export const columnLabels : any = {
+export const columnLabels: Record<string, string> = {
   clientID: "Client",
   totalAmount: "Montant Total",
   status: "Statut",
@@ -57,7 +57,7 @@ export const columns: ColumnDef<Order>[] = [
         {columnLabels["totalAmount"]} <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ getValue }) => `€${getValue().toFixed(2)}`, // Format as currency
+    cell: ({ getValue }) => `€${(getValue() as number).toFixed(2)}`, // Format as currency
   },
   {
     accessorKey: "status",
@@ -74,7 +74,10 @@ export const columns: ColumnDef<Order>[] = [
         {columnLabels["createdAt"]} <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ getValue }) => new Date(getValue()).toLocaleDateString(), // Format date
+    cell: ({ getValue }) => {
+      const dateValue = getValue() as string; // Explicitly assert the type
+      return new Date(dateValue).toLocaleDateString(); // Format date
+    },
   },
   {
     id: "actions",

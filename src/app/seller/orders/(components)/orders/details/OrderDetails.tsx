@@ -40,7 +40,7 @@ const orderStatus: any = {
   Cancelled: { label: "Annulé", variant: "destructive" },
 };
 
-export function OrderDetails({ order }) {
+export function OrderDetails({ order }:any) {
   // Récupérer les informations du statut à partir de l'objet orderStatus
   const statusInfo = orderStatus[order.status] || { label: "Inconnu", variant: "default" };
 
@@ -79,7 +79,7 @@ export function OrderDetails({ order }) {
           <div>
             <h3 className="scroll-m-10 text-2xl font-semibold tracking-tight mt-2">Produits</h3>
             <ul className="my-2 ml-6 list-disc [&>li]:mt-2">
-              {order.items.map((item, index) => (
+              {order.items.map((item:any, index:number) => (
                 <li key={index}>
                   <p className="leading-7 [&:not(:first-child)]">Produit: {item.productID.name}</p>
                   <p className="leading-7 [&:not(:first-child)]">Quantité: {item.quantity}</p>
