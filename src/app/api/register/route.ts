@@ -1,48 +1,45 @@
-import { NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import connectMongoDB from '@/lib/backend/db/mongodb';
-import { User } from '@/lib/backend/models/models';
-import authCheckMiddleware from '../../(middlewares)/authCheckMiddleware';
+import { NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { getServerSession } from "next-auth/next";
+import authOptions from "@/lib/auth/authOptions"; // Import authOptions
+import connectMongoDB from "@/lib/backend/db/mongodb";
+import { User } from "@/lib/backend/models/models";
 
-const handler = async (req) => {
+export async function PUT(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { username, firstName, lastName, email, phoneNumber, avatarImage } = await req.json();
+
   try {
     await connectMongoDB();
-    const data = await req.json();
 
-    // Check if the user already exists
-    const existingUser = await User.findOne({ email: data.email });
-    if (existingUser) {
-      return NextResponse.json({ message: 'User already exists' }, {
-        status: 400,
-      });
+    // Basic validation
+    if (!email || !phoneNumber) {
+      return NextResponse.json({ error: "Email and phone number are required" }, { status: 400 });
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(data.password, 10);
+    // Ensure the phone number is valid
+    if (!/^(\+212)\d{9}$/.test(phoneNumber)) {
+      return NextResponse.json({ error: "Invalid phone number format" }, { status: 400 });
+    }
 
-    // Create a new user
-    const newUser = new User({
-      username: data.lastName,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      passwordHash: hashedPassword,
-      email: data.email,
-      phoneNumber: data.phoneNumber,
-      userType: data.serviceType,
-    });
+    const user = await User.findOneAndUpdate(
+      { email: session.user.email },
+      { username, firstName, lastName, email, phoneNumber, avatarImage },
+      { new: true }
+    );
 
-    // Save the user to the database
-    await newUser.save();
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
 
-    return NextResponse.json({ message: 'User has been registered' }, {
-      status: 201,
-    });
-  } catch (e) {
-    console.log(e);
-    return NextResponse.json({ message: 'Error during registration' }, {
-      status: 500,
-    });
+    return NextResponse.json(user);
+  } catch (error) {
+    console.error("Error updating user:", error.message);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
-};
-
-export default authCheckMiddleware(handler);
+}
