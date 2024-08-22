@@ -198,7 +198,7 @@ function SellerOrderTracker() {
             </CardContent>
             <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3 ">
               <div className="text-xs text-muted-foreground">
-                Mis à jour{' '}
+                Mis à jour&nbsp;&#39;
                 <time dateTime={order.updatedAt}>
                   {new Date(order.updatedAt).toLocaleDateString()}
                 </time>
@@ -232,6 +232,7 @@ function SellerOrderTracker() {
                 </PaginationContent>
               </Pagination>
             </CardFooter>
+
           </Card>
         ))}
       </div>
