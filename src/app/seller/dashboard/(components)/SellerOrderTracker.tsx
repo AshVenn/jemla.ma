@@ -38,7 +38,11 @@ function SellerOrderTracker() {
 
   const sellerID = session?.user?.id;
 
-  const fetchOrders = async (page) => {
+  const fetchOrders = async (page: number) => {
+    if (!sellerID) {
+      throw new Error('Seller ID is not available');
+    }
+  
     const params = new URLSearchParams({
       sellerID: sellerID.toString(),
       page: page.toString(),
@@ -67,21 +71,24 @@ function SellerOrderTracker() {
 
   const { orders, totalOrders } = data;
 
-  const renderPaymentIcon = (method) => {
-    const icons = {
+  type PaymentMethod = 'Credit Card' | 'PayPal' | 'Bank Transfer';
+
+  const renderPaymentIcon = (method: PaymentMethod) => {
+    const icons: Record<PaymentMethod, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
       'Credit Card': CreditCard,
       'PayPal': WalletCards,
       'Bank Transfer': Banknote,
     };
-
+  
     const Icon = icons[method] || CreditCard;
     return <Icon className="h-4 w-4" />;
   };
+  
 
   return (
 
       <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1">
-        {orders.map((order) => (
+        {orders.map((order:any) => (
           <Card key={order.orderID} >
             <CardHeader className="flex flex-row items-start bg-muted/50 ">
               <div className="grid gap-0.5">
@@ -124,7 +131,7 @@ function SellerOrderTracker() {
               <div className="grid gap-3">
                 <div className="font-semibold">Détails de la commande</div>
                 <ul className="grid gap-3">
-                  {order.orderItems.map((item) => (
+                  {order.orderItems.map((item:any) => (
                     <li key={item._id} className="flex items-center justify-between">
                       <span className="text-muted-foreground">
                         {item.productID.name} x <span>{item.quantity}</span>
