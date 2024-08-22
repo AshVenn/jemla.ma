@@ -8,7 +8,6 @@ type ColumnWithAccessor = ColumnDef<any, any> & {
 
 function pdfExportOrders(data: any[], columns: ColumnWithAccessor[], columnLabels: any, orderStatus: any) {
   console.log({ data, columns });
-
   const columnsForExport = columns
     .filter(col => col.accessorKey)
     .map(col => ({

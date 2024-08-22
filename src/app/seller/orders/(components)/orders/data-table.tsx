@@ -189,8 +189,8 @@ export default function OrdersTable<TData, TValue>({
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
                         {cell.column.id === 'status' ? (
-                          <Badge variant={orderStatus[cell.getValue()]?.variant || "default"}>
-                            {orderStatus[cell.getValue()]?.label || cell.getValue()}
+                          <Badge variant={orderStatus[cell.getValue() as string]?.variant || "default"}>
+                            {orderStatus[cell.getValue() as string]?.label || cell.getValue()}
                           </Badge>
                         ) : (
                           flexRender(
