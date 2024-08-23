@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import authOptions from "@/lib/auth/authOptions";
 
+import bcrypt from 'bcryptjs';
+
 export async function PUT(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
@@ -11,7 +13,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { username, firstName, lastName, email, phoneNumber, avatarImage } = await req.json();
+  const { username, firstName, lastName, email, phoneNumber, avatarImage, password } = await req.json();
 
   try {
     await connectMongoDB();
@@ -26,9 +28,23 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Invalid phone number format" }, { status: 400 });
     }
 
+    const updateData: Record<string, any> = {
+      username,
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      avatarImage,
+    };
+
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updateData.passwordHash = hashedPassword;
+    }
+
     const user = await User.findOneAndUpdate(
       { email: session.user.email },
-      { username, firstName, lastName, email, phoneNumber, avatarImage },
+      updateData,
       { new: true }
     );
 

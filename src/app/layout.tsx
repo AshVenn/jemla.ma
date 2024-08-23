@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import "./globals.css";
 import { Inter as FontSans } from "next/font/google";
 import { ThemeProvider } from "./(cpnotrouted)/theme-provider";
@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { SessionProvider } from 'next-auth/react';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
+import { Toaster } from "@/components/ui/toaster"
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             disableTransitionOnChange
           >
             {children}
+            <Toaster/>
             <Analytics />
             <SpeedInsights />
           </ThemeProvider>

@@ -5,7 +5,7 @@ import { Dialog, DialogClose } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import { SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { HamburgerMenuIcon } from '@radix-ui/react-icons'
-import { LayoutDashboard, Box, ShoppingCart, Settings } from 'lucide-react'
+import { LayoutDashboard, Box, ShoppingCart,BarChart3, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { ReactNode } from 'react'
 import JemlaWithText from '@/lib/assets/JemlaWithText'
@@ -53,6 +53,14 @@ function VendeurDashboardNavbar({ children }: { children: ReactNode }) {
                   <Button variant="outline" className="w-full">
                     <ShoppingCart className="mr-2 h-4 w-4" />
                     Commandes
+                  </Button>
+                </Link>
+              </DialogClose>
+              <DialogClose asChild>
+                <Link href="/seller/analytics">
+                  <Button variant="outline" className="w-full">
+                    <BarChart3 className="mr-2 h-4 w-4" />
+                    Analytique
                   </Button>
                 </Link>
               </DialogClose>

@@ -15,26 +15,40 @@ export const authOptions: AuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email and password must be provided");
+        if (!credentials?.email) {
+          throw new Error("Email must be provided");
         }
-
+      
         const { email, password } = credentials;
-
+      
         try {
           await connectMongoDB();
           const user = await User.findOne({ email });
-
+      
           if (!user) {
             throw new Error("User not found");
           }
-
+      
+          // If no password is provided, bypass password check for re-authentication
+          if (!password) {
+            return {
+              id: user._id.toString(),
+              username: user.username,
+              email: user.email,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              type: user.userType,
+              phoneNumber: user.phoneNumber,
+              avatarImage: user.avatarImage,
+            };
+          }
+      
           const passwordsMatch = await bcrypt.compare(password, user.passwordHash);
-
+      
           if (!passwordsMatch) {
             throw new Error("Incorrect password");
           }
-
+      
           return {
             id: user._id.toString(),
             username: user.username,
@@ -49,7 +63,8 @@ export const authOptions: AuthOptions = {
           console.error("Authentication error:", error instanceof Error ? error.message : error);
           return null;
         }
-      },
+      }
+      
     }),
   ],
   session: {

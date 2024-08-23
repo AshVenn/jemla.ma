@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 import ProductTableSkeleton from "./(components)/ProductTableSkeleton";
 
 // Fetch data including product and inventory details
-async function fetchData(sellerId: string): Promise<ProductWithInventory[]> {
+async function fetchData(sellerId: string | undefined): Promise<ProductWithInventory[]> {
   const response = await fetch(`/api/seller/products?sellerId=${sellerId}`);
   if (!response.ok) {
     throw new Error('Error fetching products');

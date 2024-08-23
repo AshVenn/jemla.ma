@@ -1,5 +1,4 @@
-'use client';
-
+'use client'
 import * as React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -16,6 +15,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useSession, signIn } from 'next-auth/react';
 import { CldImage } from 'next-cloudinary';
+import { useToast } from "@/components/ui/use-toast"
+
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   username: z.string().min(2, 'Nom d’utilisateur invalide'),
@@ -63,6 +65,9 @@ const Settings: React.FC = () => {
   const { data: session } = useSession();
   const [userPhoneError, setuserPhoneError] = React.useState<string | null>(null);
   const [isPasswordChangeEnabled, setIsPasswordChangeEnabled] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const { toast } = useToast()
+  
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -107,6 +112,7 @@ const Settings: React.FC = () => {
       method: 'POST',
       body: formData,
     });
+    
 
     if (!response.ok) {
       throw new Error("Erreur lors du téléchargement de l'image");
@@ -115,32 +121,54 @@ const Settings: React.FC = () => {
     const data = await response.json();
     return data.secure_url;
   };
-
+    
+  
+  const showToast = (variant: "default" | "destructive", title: string, description: string) => {
+    toast({
+      variant: variant,
+      title: title,
+      description: description,
+    });
+  };
+  
+  
   const onSubmit = async (data: FormData) => {
+    setLoading(true);
     try {
       setuserPhoneError(null);
-
+  
+      // Step 1: Check if phone number has changed
       if (data.phoneNumber !== session?.user?.phoneNumber) {
-        const checkPhoneResponse = await fetch('/api/seller/checkPhoneNumber', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ phoneNumber: data.phoneNumber }),
-        });
-
-        if (checkPhoneResponse.status === 400) {
-          setuserPhoneError('Le numéro de téléphone est déjà pris');
-          return;
+        try {
+          const checkPhoneResponse = await fetch('/api/seller/checkPhoneNumber', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ phoneNumber: data.phoneNumber }),
+          });
+  
+          if (!checkPhoneResponse.ok) {
+            setuserPhoneError('Le numéro de téléphone est déjà pris');
+            return;  // Early exit
+          }
+        } catch (error) {
+          throw error;  // Re-throw to ensure the main catch block handles it
         }
       }
-
-      let imageUrl = session?.user?.avatarImage;
+  
+      // Step 2: Handle image upload if a new picture is provided
+      let imageUrl = session?.user?.avatarImage || "";
       if (data.picture) {
-        imageUrl = await uploadImage(data.picture);
+        try {
+          imageUrl = await uploadImage(data.picture);
+        } catch (error) {
+          throw error;  // Re-throw to ensure the main catch block handles it
+        }
       }
-
-      const updateData = {
+  
+      // Step 3: Prepare update data
+      const updateData: Partial<FormData> & { avatarImage?: string } = {
         username: data.username,
         firstName: data.firstName,
         lastName: data.lastName,
@@ -148,35 +176,73 @@ const Settings: React.FC = () => {
         phoneNumber: data.phoneNumber,
         avatarImage: imageUrl,
       };
-
-      const response = await fetch('/api/seller', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updateData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erreur lors de la mise à jour des informations');
+  
+      if (data.password) {
+        updateData.password = data.password;
       }
-
-      const result = await response.json();
-
-      if (result.user) {
-        const signInResponse = await signIn('credentials', { redirect: false, ...result.user });
-
-        if (signInResponse?.ok === false) {
-          throw new Error('Échec de la mise à jour de la session');
+  
+      // Step 4: Send update request
+      let result;
+      try {
+        const response = await fetch('/api/seller', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updateData),
+        });
+  
+        if (!response.ok) {
+          throw new Error('Erreur lors de la mise à jour des informations');
         }
-
-        console.log('Utilisateur mis à jour et session rafraîchie');
+  
+        result = await response.json();
+      } catch (error) {
+        throw error;  // Re-throw to ensure the main catch block handles it
+      }
+  
+      // Step 5: Re-sign in the user to refresh the session with updated data
+      if (result && result.email) {
+        try {
+          const signInResponse = await signIn('credentials', {
+            redirect: false,
+            email: result.email,
+            password: data.password || "",  // Ensure password is handled; "" if not provided
+          });
+  
+          if (!signInResponse?.ok) {
+            throw new Error('Échec de la mise à jour de la session');
+          }
+  
+          // Show success toast
+          showToast("default", "Mise à jour réussie", "Vos informations ont été mises à jour avec succès.");
+        } catch (error) {
+          throw error;  // Re-throw to ensure the main catch block handles it
+        }
+      } else {
+        throw new Error('User email not found in update response');
       }
     } catch (e) {
       console.error('Erreur lors de la soumission du formulaire:', e);
+  
+      // Show destructive toast if any error occurs
+      showToast("destructive", "Erreur", "Une erreur s'est produite lors de la mise à jour.");
+    } finally {
+      setLoading(false);
     }
   };
-
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -404,8 +470,8 @@ const Settings: React.FC = () => {
             <Button variant="outline" onClick={togglePasswordChange} className="w-full">
               {isPasswordChangeEnabled ? 'Annuler la modification du mot de passe' : 'Modifier le mot de passe'}
             </Button>
-            <Button type="submit" className="w-full">
-              Mettre à jour
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Mettre à jour"}
             </Button>
           </form>
         </Form>
