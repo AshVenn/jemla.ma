@@ -1,11 +1,10 @@
 "use client";
-import "../globals.css";
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import Link from "next/link";
-import { signIn, getSession } from "next-auth/react";
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,9 +21,17 @@ const formSchema = z.object({
 type FormSchemaType = z.infer<typeof formSchema>;
 
 export default function Login() {
+  const { data: session} = useSession();
   const router = useRouter();
   const [logInError, setLogInError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    if (session) {
+      const userType = session?.user?.type;
+      router.push(`/${userType}/dashboard`);
+    }
+  }, [session, router]);
 
   // Configurer le formulaire avec react-hook-form et zod resolver
   const form = useForm<FormSchemaType>({
@@ -41,34 +48,14 @@ export default function Login() {
         redirect: false,
       });
 
-      if (!res) {
-        setLogInError("Une erreur est survenue lors de la connexion. Veuillez réessayer.");
-        return;
-      }
-
-      if (res.error) {
-        setLogInError(res.error === 'CredentialsSignin' 
+      if (!res || res.error) {
+        setLogInError(res?.error === 'CredentialsSignin' 
           ? "Identifiants incorrects. Veuillez vérifier votre email et mot de passe." 
           : "Une erreur est survenue lors de la connexion. Veuillez réessayer.");
         return;
       }
 
-      const session = await getSession();
-      const userType = session?.user?.type;
-
-      switch (userType) {
-        case 'seller':
-          router.push("/seller/dashboard");
-          break;
-        case 'client':
-          router.push("/client/dashboard");
-          break;
-        case 'admin':
-          router.push("/admin/dashboard");
-          break;
-        default:
-          setLogInError("Type d'utilisateur inconnu.");
-      }
+      // No need to manually handle session, the useEffect will handle the redirect
     } catch (error) {
       console.error(error);
       setLogInError("Une erreur inattendue est survenue. Veuillez réessayer plus tard.");
@@ -112,7 +99,9 @@ export default function Login() {
                   </FormItem>
                 )}
               />
-              {logInError && <FormMessage>{logInError}</FormMessage>}
+              {logInError && (
+                <p className="text-red-500 text-sm">{logInError}</p>
+              )}
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Connexion"}
               </Button>
