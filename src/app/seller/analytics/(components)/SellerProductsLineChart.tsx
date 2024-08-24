@@ -1,10 +1,6 @@
-"use client";
-
-import { useQuery } from "react-query";
+import React from "react";
+import { Line, LineChart, CartesianGrid, XAxis } from "recharts";
 import { TrendingUp } from "lucide-react";
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
-import { useSession } from "next-auth/react";
-
 import {
   Card,
   CardContent,
@@ -20,12 +16,6 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-// Function to fetch products data from the API
-const fetchProductsData = async (sellerID: string | undefined) => {
-  const res = await fetch(`/api/seller/analytics?sellerID=${sellerID}`);
-  return res.json();
-};
-
 const chartConfig = {
   products: {
     label: "Produits",
@@ -33,22 +23,14 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function SellerProductsLineChart() {
-  const { data: session, status } = useSession();
-  const sellerID = session?.user?.id;
+type SellerProductsLineChartProps = {
+  productsData: number;
+};
 
-  const { data, isLoading, error } = useQuery(
-    ['productsData', sellerID],
-    () => fetchProductsData(sellerID),
-    { enabled: !!sellerID } // Only run the query if sellerID is available
-  );
-
-  if (status === "loading" || isLoading) return <div>Chargement...</div>;
-  if (status === "unauthenticated" || error) return <div>Erreur de chargement des données</div>;
-
+export default function SellerProductsLineChart({ productsData }: SellerProductsLineChartProps) {
   const chartData = Array(6).fill(0).map((_, idx) => ({
     month: new Date(2024, idx).toLocaleDateString('fr-FR', { month: 'long' }),
-    products: data.totalProducts, // Adjust if you have specific data per month
+    products: productsData,
   }));
 
   return (

@@ -1,11 +1,6 @@
-"use client";
-
-import * as React from "react";
-import { useQuery } from "react-query";
+import React from "react";
+import { Pie, PieChart, Label } from "recharts";
 import { TrendingUp } from "lucide-react";
-import { Label, Pie, PieChart } from "recharts";
-import { useSession } from "next-auth/react";
-
 import {
   Card,
   CardContent,
@@ -21,15 +16,6 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-// Function to fetch review data from the API
-const fetchReviewData = async (sellerID: string | undefined) => {
-  const res = await fetch(`/api/seller/analytics?sellerID=${sellerID}`);
-  const data = await res.json();
-
-  console.log("API Response Data:", data);  // Debugging output
-
-  return data;
-};
 const chartConfig = {
   reviews: {
     label: "Avis",
@@ -56,41 +42,31 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function SellerReviewsPieChart() {
-  const { data: session, status } = useSession();
-  const sellerID = session?.user?.id;
+type SellerReviewsPieChartProps = {
+  reviewData: Record<string, number>;
+  previousTotalReviews: number; // Previous total reviews
+};
 
-  // Ensure that useQuery is called unconditionally
-  const { data, isLoading, error } = useQuery(
-    ['reviewData', sellerID],
-    () => fetchReviewData(sellerID),
-    { enabled: !!sellerID } // The query won't run until sellerID is available
-  );
-
-  // Handle loading and error states before the component renders the main UI
-  if (status === "loading" || isLoading) return <div>Chargement...</div>;
-  if (status === "unauthenticated" || error) return <div>Erreur de chargement des données</div>;
-
-  // If there's no data or totalReviewsByRating is missing, we avoid the render error
-  const totalReviewsByRating = data?.totalReviewsByRating || {};
-  console.log(totalReviewsByRating)
-
-  // Mapping the API data to the format needed for the chart
+export default function SellerReviewsPieChart({ reviewData, previousTotalReviews }: SellerReviewsPieChartProps) {
   const chartData = [
-    { rating: "5 Étoiles", reviews: totalReviewsByRating[5] || 0, fill: chartConfig["5 Étoiles"].color },
-    { rating: "4 Étoiles", reviews: totalReviewsByRating[4] || 0, fill: chartConfig["4 Étoiles"].color },
-    { rating: "3 Étoiles", reviews: totalReviewsByRating[3] || 0, fill: chartConfig["3 Étoiles"].color },
-    { rating: "2 Étoiles", reviews: totalReviewsByRating[2] || 0, fill: chartConfig["2 Étoiles"].color },
-    { rating: "1 Étoile", reviews: totalReviewsByRating[1] || 0, fill: chartConfig["1 Étoile"].color },
+    { rating: "5 Étoiles", reviews: reviewData[5] || 0, fill: chartConfig["5 Étoiles"].color },
+    { rating: "4 Étoiles", reviews: reviewData[4] || 0, fill: chartConfig["4 Étoiles"].color },
+    { rating: "3 Étoiles", reviews: reviewData[3] || 0, fill: chartConfig["3 Étoiles"].color },
+    { rating: "2 Étoiles", reviews: reviewData[2] || 0, fill: chartConfig["2 Étoiles"].color },
+    { rating: "1 Étoile", reviews: reviewData[1] || 0, fill: chartConfig["1 Étoile"].color },
   ];
 
   const totalReviews = chartData.reduce((acc, curr) => acc + curr.reviews, 0);
+
+  const percentageIncrease = previousTotalReviews
+    ? ((totalReviews - previousTotalReviews) / previousTotalReviews) * 100
+    : 0;
 
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
         <CardTitle>Graphique des Avis</CardTitle>
-        <CardDescription>Distribution des Évaluations (Janvier - Juin 2024)</CardDescription>
+        <CardDescription>Distribution des Évaluations pour l'année en cours</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
@@ -144,10 +120,13 @@ export default function SellerReviewsPieChart() {
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          Avis en hausse de 5% ce mois-ci <TrendingUp className="h-4 w-4" />
+          {percentageIncrease >= 0
+            ? `Avis en hausse de ${percentageIncrease.toFixed(2)}% ce mois-ci`
+            : `Avis en baisse de ${Math.abs(percentageIncrease).toFixed(2)}% ce mois-ci`}
+          <TrendingUp className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          Affichage du total des avis pour les 6 derniers mois
+           Affichage des avis pour le mois en cours
         </div>
       </CardFooter>
     </Card>

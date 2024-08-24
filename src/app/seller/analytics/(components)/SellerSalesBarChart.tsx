@@ -1,10 +1,7 @@
 "use client";
-
-import { useQuery } from "react-query";
-import { TrendingUp } from "lucide-react";
+import React from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
-import { useSession } from "next-auth/react";
-
+import { TrendingUp } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -20,12 +17,6 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-// Function to fetch sales data from the API
-const fetchSalesData = async (sellerID: string | undefined) => {
-  const res = await fetch(`/api/seller/analytics?sellerID=${sellerID}`);
-  return res.json();
-};
-
 const chartConfig = {
   sales: {
     label: "Ventes",
@@ -33,23 +24,23 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function SellerSalesBarChart() {
-  const { data: session, status } = useSession();
-  const sellerID = session?.user?.id;
+type SellerSalesBarChartProps = {
+  salesData: Array<any>;
+  currentMonthSales: number;
+  previousMonthSales: number;
+};
 
-  const { data, isLoading, error } = useQuery(
-    ['salesData', sellerID],
-    () => fetchSalesData(sellerID),
-    { enabled: !!sellerID } // Only run the query if sellerID is available
-  );
-
-  if (status === "loading" || isLoading) return <div>Chargement...</div>;
-  if (status === "unauthenticated" || error) return <div>Erreur de chargement des données</div>;
-
-  const chartData = data.totalSales.map((sale: any) => ({
+export default function SellerSalesBarChart({ salesData = [], currentMonthSales, previousMonthSales }: SellerSalesBarChartProps) {
+  // Ensure salesData is in the correct format
+  const chartData = salesData.map((sale: any) => ({
     month: new Date(sale._id.year, sale._id.month - 1).toLocaleDateString('fr-FR', { month: 'long' }),
-    sales: sale.totalAmount,
+    sales: sale.totalAmount || 0,
   }));
+
+  // Calculate percentage increase
+  const percentageIncrease = previousMonthSales
+    ? ((currentMonthSales - previousMonthSales) / previousMonthSales) * 100
+    : 0;
 
   return (
     <Card>
@@ -58,27 +49,34 @@ export default function SellerSalesBarChart() {
         <CardDescription>Ventes par Mois</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
-          <BarChart accessibilityLayer data={chartData}>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Bar dataKey="sales" fill={chartConfig.sales.color} radius={8} />
-          </BarChart>
-        </ChartContainer>
+        {chartData.length > 0 ? (
+          <ChartContainer config={chartConfig}>
+            <BarChart accessibilityLayer data={chartData}>
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="month"
+                tickLine={false}
+                tickMargin={10}
+                axisLine={false}
+                tickFormatter={(value) => value.slice(0, 3)}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel />}
+              />
+              <Bar dataKey="sales" fill={chartConfig.sales.color} radius={8} />
+            </BarChart>
+          </ChartContainer>
+        ) : (
+          <div>Pas de données disponibles pour les ventes</div>
+        )}
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 font-medium leading-none">
-          Ventes en hausse ce mois-ci <TrendingUp className="h-4 w-4" />
+          {percentageIncrease >= 0
+            ? `Ventes en hausse de ${percentageIncrease.toFixed(2)}% ce mois-ci`
+            : `Ventes en baisse de ${Math.abs(percentageIncrease).toFixed(2)}% ce mois-ci`}
+          <TrendingUp className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
           Affichage du total des ventes par mois

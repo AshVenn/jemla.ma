@@ -46,7 +46,7 @@ export function OrderDetails({ order }:any) {
 
   return (
     <Sheet>
-      <SheetTrigger className="relative flex select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:opacity-50">
+      <SheetTrigger className="w-full relative flex select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:opacity-50">
         Voir Détails
       </SheetTrigger>
       <SheetContent className="h-full max-h-[100vh] overflow-y-auto scrollbar-hide">

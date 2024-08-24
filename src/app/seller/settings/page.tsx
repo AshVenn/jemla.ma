@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useSession, signIn } from 'next-auth/react';
-import { CldImage } from 'next-cloudinary';
+import Image from 'next/image';
 import { useToast } from "@/components/ui/use-toast"
 
 import { Loader2 } from "lucide-react";
@@ -443,9 +443,9 @@ const Settings: React.FC = () => {
                       <FormLabel>Image de Profil</FormLabel>
                       <div className="flex items-center space-x-4">
                         {session?.user?.avatarImage && (
-                          <CldImage
+                          <Image
                             src={session.user.avatarImage}
-                            alt="Avatar"
+                            alt={session.user.username}
                             width="100"
                             height="100"
                             className="rounded-full"

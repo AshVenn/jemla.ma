@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
+import Image from 'next/image';
 
 type ImageCarouselProps = {
   images: string[];
@@ -37,9 +33,11 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
           >
             <Card className="w-20 h-20 mx-auto">
               <CardContent className="flex items-center justify-center p-1">
-                <img
+                <Image
                   src={image}
                   alt={`Image ${index + 1}`}
+                  width={80} // Set width to match your container's width
+                  height={80} // Set height to match your container's height
                   className="object-cover w-full h-full rounded"
                 />
               </CardContent>
