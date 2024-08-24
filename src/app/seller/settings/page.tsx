@@ -291,6 +291,7 @@ const Settings: React.FC = () => {
                           />
                         </FormControl>
                         <Button
+                        type='button'
                           variant="outline"
                           onClick={() => toggleFieldModifier('username')}
                         >
@@ -316,6 +317,7 @@ const Settings: React.FC = () => {
                           />
                         </FormControl>
                         <Button
+                        type='button'
                           variant="outline"
                           onClick={() => toggleFieldModifier('lastName')}
                         >
@@ -341,6 +343,7 @@ const Settings: React.FC = () => {
                           />
                         </FormControl>
                         <Button
+                        type='button'
                           variant="outline"
                           onClick={() => toggleFieldModifier('firstName')}
                         >
@@ -366,6 +369,7 @@ const Settings: React.FC = () => {
                           />
                         </FormControl>
                         <Button
+                        type='button'
                           variant="outline"
                           onClick={() => toggleFieldModifier('phoneNumber')}
                         >
@@ -391,6 +395,7 @@ const Settings: React.FC = () => {
                           />
                         </FormControl>
                         <Button
+                        type='button'
                           variant="outline"
                           onClick={() => toggleFieldModifier('email')}
                         >
