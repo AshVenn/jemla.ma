@@ -25,7 +25,6 @@
 
   // Category Schema
   const categorySchema = new Schema({
-    categoryID: { type: Schema.Types.ObjectId, auto: true },
     name: { type: String, required: true },
     description: { type: String },
   }, { timestamps: true });
@@ -168,24 +167,25 @@ orderSchema.index({ clientID: 1, sellerID: 1, status: 1 });
     next();
   });
 
-    // Featured Product Schema
-  const featuredProductSchema = new Schema({
-    featuredProductID: { type: Schema.Types.ObjectId, auto: true },
-    productID: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
-    displayOrder: { type: Number, default: 0 }, // Order in which products should be displayed
-    featuredSince: { type: Date, default: Date.now }, // Date when the product was featured
-    isActive: { type: Boolean, default: true }, // To manage active/inactive featured products
-  }, { timestamps: true });
+// Featured Product Schema
+const featuredProductSchema = new Schema({
+  featuredProductID: { type: Schema.Types.ObjectId, auto: true },
+  productID: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+  sellerID: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to the seller
+  displayOrder: { type: Number, default: 0 }, // Order in which products should be displayed
+  featuredSince: { type: Date, default: Date.now }, // Date when the product was featured
+  isActive: { type: Boolean, default: true }, // To manage active/inactive featured products
+  averageRating: { type: Number, default: 0, min: 0, max: 5 }, // Average rating for the featured product
+}, { timestamps: true });
 
-  // Index for efficient querying
-  featuredProductSchema.index({ isActive: 1, displayOrder: 1 });
+// Index for efficient querying
+featuredProductSchema.index({ isActive: 1, displayOrder: 1 });
   
   
   
 
   // User Schema
   const userSchema = new Schema({
-    userID: { type: Schema.Types.ObjectId, auto: true },
     username: { type: String, required: true },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
@@ -229,3 +229,5 @@ orderSchema.index({ clientID: 1, sellerID: 1, status: 1 });
     FeaturedProduct,
     User,
   };
+
+  

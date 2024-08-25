@@ -28,7 +28,7 @@ export default function MobileNav() {
             <SheetTitle>
               <div className='flex justify-center'>
                 <Link href='/'>
-                  <JemlaWithText width='200' height='50' />
+                  <JemlaWithText width='250' height='50' />
                 </Link>
               </div>
             </SheetTitle>

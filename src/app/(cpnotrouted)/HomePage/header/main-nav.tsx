@@ -31,7 +31,7 @@ export default function MainNav() {
       
       {/* Account Links */}
       <div className='flex items-center gap-2'>
-        <Link href='/login'><Button variant='ghost' className=' border-2' type='button'>Connecter</Button></Link>
+        <Link href='/login'><Button variant='ghost' className=' border-r' type='button'>Connecter</Button></Link>
         <Link href='/register'><Button className='' type='button'>S'inscrire</Button></Link>
       </div>
     </div>
