@@ -8,8 +8,9 @@ interface RootLayoutProps {
   children: React.ReactNode;
 }
 export const metadata = {
-  title: '   ',
-  description: '  ',
+  title: 'Jemla.ma',
+  description: "Découvrez notre plateforme dédiée aux vendeurs en gros au Maroc. Gérez facilement vos stocks, suivez les commandes, analysez les ventes et optimisez vos opérations commerciales.Une solution complète pour développer votre activité en toute simplicité."
+,
 };
 export default function RootLayout({
   children,
