@@ -167,6 +167,18 @@ orderSchema.index({ clientID: 1, sellerID: 1, status: 1 });
     this.updatedAt = new Date(); 
     next();
   });
+
+    // Featured Product Schema
+  const featuredProductSchema = new Schema({
+    featuredProductID: { type: Schema.Types.ObjectId, auto: true },
+    productID: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+    displayOrder: { type: Number, default: 0 }, // Order in which products should be displayed
+    featuredSince: { type: Date, default: Date.now }, // Date when the product was featured
+    isActive: { type: Boolean, default: true }, // To manage active/inactive featured products
+  }, { timestamps: true });
+
+  // Index for efficient querying
+  featuredProductSchema.index({ isActive: 1, displayOrder: 1 });
   
   
   
@@ -201,6 +213,7 @@ orderSchema.index({ clientID: 1, sellerID: 1, status: 1 });
   const Payment = mongoose.models.Payment || mongoose.model('Payment', paymentSchema);
   const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
   const User = mongoose.models.User || mongoose.model('User', userSchema);
+  const FeaturedProduct = mongoose.models.FeaturedProduct || mongoose.model('FeaturedProduct', featuredProductSchema);
 
   export {
     Address,
@@ -213,5 +226,6 @@ orderSchema.index({ clientID: 1, sellerID: 1, status: 1 });
     Inventory,
     Payment,
     Product,
+    FeaturedProduct,
     User,
   };

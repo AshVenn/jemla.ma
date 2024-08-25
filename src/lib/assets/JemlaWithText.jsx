@@ -1,8 +1,6 @@
-import { useTheme } from 'next-themes';
 import React from 'react';
 
-function JemlaWithText({ width = '1080', height = '1080' }) {
-  const { theme,setTheme } = useTheme();
+function JemlaWithText({ width = '1080', height = '1080',theme = 'light' }) {
 
   return (
     <svg 
