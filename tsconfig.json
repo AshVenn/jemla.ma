@@ -21,6 +21,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/lib/export/seller/orderDetails/pdf.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/lib/export/seller/orderDetails/pdf.ts", "src/app/api/user/usernameExists/route.ts"],
   "exclude": ["node_modules"]
 }

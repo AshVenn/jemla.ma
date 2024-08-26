@@ -161,6 +161,13 @@ orderSchema.index({ clientID: 1, sellerID: 1, status: 1 });
   // Indexes for efficient querying
   productSchema.index({ name: 1, categoryID: 1, sku: 1 });
   
+    // New text index for full-text search
+  productSchema.index({
+    name: 'text',
+    description: 'text',
+    tags: 'text',
+  });
+    
   // Middleware to update the updatedAt field
   productSchema.pre('save', function(next) {
     this.updatedAt = new Date(); 
@@ -198,6 +205,8 @@ featuredProductSchema.index({ isActive: 1, displayOrder: 1 });
       required: true,
     },
     avatarImage: { type: String },
+    verificationToken: { type: String },
+    isVerified: { type: Boolean, default: false },
   }, { timestamps: true });
 
   userSchema.index({ email: 1 });

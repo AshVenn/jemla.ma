@@ -1,51 +1,61 @@
-import { NextResponse } from "next/server";
-import { NextRequest } from "next/server";
-import { getServerSession } from "next-auth/next";
-import authOptions from "@/lib/auth/authOptions"; // Import authOptions
-import connectMongoDB from "@/lib/backend/db/mongodb";
-import { User } from "@/lib/backend/models/models";
+import { NextResponse, NextRequest } from 'next/server';
+import connectMongoDB from '@/lib/backend/db/mongodb';
+import { User } from '@/lib/backend/models/models';
+import bcrypt from 'bcryptjs';
 
-export async function PUT(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { username, firstName, lastName, email, phoneNumber, avatarImage } = await req.json();
-
+export async function POST(req: NextRequest) {
   try {
+    const { email, password, username, serviceType, firstName, lastName, phoneNumber, picture, recaptchaToken } = await req.json();
+
+    // CAPTCHA validation
+    const captchaResponse = await fetch(`https://www.google.com/recaptcha/api/siteverify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`,
+    });
+
+    const captchaData = await captchaResponse.json();
+
+    if (!captchaData.success) {
+      return NextResponse.json({ error: "CAPTCHA verification failed" }, { status: 400 });
+    }
+
     await connectMongoDB();
 
-    // Basic validation
-    if (!email || !phoneNumber) {
-      return NextResponse.json({ error: "Email and phone number are required" }, { status: 400 });
+    // Check if user exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return NextResponse.json({ error: "Email is already taken" }, { status: 400 });
     }
 
-    // Ensure the phone number is valid
-    if (!/^(\+212)\d{9}$/.test(phoneNumber)) {
-      return NextResponse.json({ error: "Invalid phone number format" }, { status: 400 });
-    }
+    // Hash the password
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    const user = await User.findOneAndUpdate(
-      { email: session.user.email },
-      { username, firstName, lastName, email, phoneNumber, avatarImage },
-      { new: true }
-    );
+    // Save the user with hashed password
+    const user = new User({
+      email,
+      passwordHash, // Storing the hashed password
+      username,
+      firstName,
+      lastName,
+      phoneNumber,
+      userType: serviceType,
+      avatarImage: picture,
+      isVerified: false, // User is directly marked as verified
+    });
 
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
+    await user.save();
 
-    return NextResponse.json(user);
+    // Construct the absolute URL for redirection using NEXTAUTH_URL
+    const redirectUrl = new URL('/email-sent', process.env.NEXTAUTH_URL);
+
+    // Redirect to the confirmation page
+    return NextResponse.redirect(redirectUrl.toString());
   } catch (error) {
-    if (error instanceof Error) {
-      console.error("Error updating user:", error.message);
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
-    } else {
-      // Handle non-Error exceptions (if needed)
-      console.error("Unknown error occurred:", error);
-      return NextResponse.json({ error: "Unknown error" }, { status: 500 });
-    }
+    console.error("Error during registration:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

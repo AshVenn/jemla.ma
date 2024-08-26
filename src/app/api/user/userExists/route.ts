@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
-import connectMongoDB from "../../../lib/backend/db/mongodb";
-import { User } from "../../../lib/backend/models/models";
+import { NextResponse,NextRequest } from 'next/server';
+import connectMongoDB from "@/lib/backend/db/mongodb";
+import { User } from "@/lib/backend/models/models";
 
-export async function POST(req) {
+export async function POST(req:NextRequest) {
   try {
     await connectMongoDB();
     const data = await req.json();

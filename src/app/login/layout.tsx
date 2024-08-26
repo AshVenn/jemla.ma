@@ -1,7 +1,6 @@
 'use client';
 import { ReactNode, useMemo } from 'react';
 import AuthProvider from '../Providers';
-import { useSession } from 'next-auth/react';
 
 interface RootLayoutProps {
   children: ReactNode;

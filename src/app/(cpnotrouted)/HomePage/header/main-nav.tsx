@@ -14,8 +14,8 @@ export default function MainNav() {
       {/* Navigation Links */}
       <nav className='flex items-center gap-4'>
         <Button variant='ghost' className=' text-lg'><Link href='/categories'>Catégories</Link></Button>
-        <Button variant='ghost' className=' text-lg'><Link href='/nouveautes'>Nouveautés</Link></Button>
-        <Button variant='ghost' className=' text-lg'><Link href='/a-propos'>À Propos</Link></Button>
+        <Button variant='ghost' className=' text-lg'><Link href='/whatsnew'>Nouveautés</Link></Button>
+        <Button variant='ghost' className=' text-lg'><Link href='/about'>À Propos</Link></Button>
         <Button variant='ghost' className=' text-lg'><Link href='/contact'>Contact</Link></Button>
       </nav>
       
