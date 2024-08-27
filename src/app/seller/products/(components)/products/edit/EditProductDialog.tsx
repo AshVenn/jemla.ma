@@ -26,6 +26,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Checkbox } from '@/components/ui/checkbox';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useSession } from 'next-auth/react';
+import Image from 'next/image';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Nom invalide').max(255, 'Nom trop long'),
@@ -400,12 +401,15 @@ const EditProductDialog: React.FC<EditProductDialogProps> = ({ product }) => {
                         />
                       </FormControl>
                       {previewUrls[index] && (
-                        <img
-                          src={previewUrls[index]}
-                          alt={`Preview ${index + 1}`}
-                          className="mt-2 max-h-20"
-                        />
-                      )}
+                      <Image
+                        src={previewUrls[index]}
+                        alt={`Preview ${index + 1}`}
+                        className="mt-2 max-h-20"
+                        layout="intrinsic" // or "responsive", depending on your needs
+                        width={80}  // You can adjust these values based on your design
+                        height={80} // You can adjust these values based on your design
+                      />
+                    )}
                       <FormMessage>{form.formState.errors.images?.[index]?.message}</FormMessage>
                     </FormItem>
                   ))}

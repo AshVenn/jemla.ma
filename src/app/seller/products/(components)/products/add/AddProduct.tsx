@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { useSession } from 'next-auth/react';
+import Image from 'next/image';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Nom invalide').max(255, 'Nom trop long'),
@@ -342,12 +343,15 @@ const AddProduct: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
                         />
                       </FormControl>
                       {previewUrls[0] && (
-                        <img
-                          src={previewUrls[0]}
-                          alt="Preview 1"
-                          className="mt-2 max-h-20"
-                        />
-                      )}
+                          <Image
+                            src={previewUrls[0]}
+                            alt="Preview 1"
+                            className="mt-2 max-h-20"
+                            layout="intrinsic" // or "responsive", depending on your needs
+                            width={80}  // Adjust width based on your design
+                            height={80} // Adjust height based on your design
+                          />
+                        )}
                       <FormMessage>{form.formState.errors.images?.[0]?.message}</FormMessage>
                     </FormItem>
                   )}
@@ -366,12 +370,15 @@ const AddProduct: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
                         />
                       </FormControl>
                       {previewUrls[1] && (
-                        <img
-                          src={previewUrls[1]}
-                          alt="Preview 2"
-                          className="mt-2 max-h-20"
-                        />
-                      )}
+                            <Image
+                              src={previewUrls[1]}
+                              alt="Preview 2"
+                              className="mt-2 max-h-20"
+                              layout="intrinsic" // or "responsive", depending on your needs
+                              width={80}  // Adjust width based on your design
+                              height={80} // Adjust height based on your design
+                            />
+                          )}
                       <FormMessage>{form.formState.errors.images?.[1]?.message}</FormMessage>
                     </FormItem>
                   )}
@@ -390,12 +397,15 @@ const AddProduct: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
                         />
                       </FormControl>
                       {previewUrls[2] && (
-                        <img
-                          src={previewUrls[2]}
-                          alt="Preview 3"
-                          className="mt-2 max-h-20"
-                        />
-                      )}
+                            <Image
+                              src={previewUrls[2]}
+                              alt="Preview 3"
+                              className="mt-2 max-h-20"
+                              layout="intrinsic" // or "responsive", depending on your needs
+                              width={80}  // Adjust width based on your design
+                              height={80} // Adjust height based on your design
+                            />
+                          )}
                       <FormMessage>{form.formState.errors.images?.[2]?.message}</FormMessage>
                     </FormItem>
                   )}

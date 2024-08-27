@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster"
 import AuthProvider from "./Providers";
 
 export const metadata = {
+  metadataBase: new URL('https://jemla-ma.vercel.app'),
   title: {
     default: 'Jemla.ma',
     template: '%s - Jemla.ma',
@@ -18,7 +19,7 @@ export const metadata = {
   openGraph: {
     title: 'Jemla.ma - Plateforme pour les grossistes au Maroc',
     description: "Jemla.ma est votre allié pour gérer efficacement votre commerce en gros au Maroc. De la gestion des stocks à l'analyse des ventes, découvrez une solution tout-en-un pour booster votre activité.",
-    url: 'https://www.jemla.ma',
+    url: 'https://jemla-ma.vercel.app',
     type: 'website',
     images: [
       {
@@ -33,6 +34,7 @@ export const metadata = {
     apple: '/apple-touch-icon.png',
   },
 };
+
 
 export default function RootLayout({
   children,

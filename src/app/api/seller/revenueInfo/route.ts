@@ -5,7 +5,7 @@ import { Types } from 'mongoose';
 
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
+    const searchParams = req.nextUrl.searchParams;
     const period = searchParams.get('period');
     const sellerID = searchParams.get('sellerID');
 

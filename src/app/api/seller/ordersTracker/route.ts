@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectMongoDb();
 
-    const { searchParams } = new URL(req.url);
+    const searchParams = req.nextUrl.searchParams;
     const sellerID = searchParams.get('sellerID');
     const page = searchParams.get('page') || '1';
     const limit = searchParams.get('limit') || '10';
