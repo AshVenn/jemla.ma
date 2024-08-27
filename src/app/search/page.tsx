@@ -1,43 +1,65 @@
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import ProductSearch from '@/components/ProductSearch';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
-export default function ProductSearchPage({ searchParams }: { searchParams: { q?: string; category?: string; minPrice?: string; maxPrice?: string } }) {
-  const { q = '', category = '', minPrice = '', maxPrice = '' } = searchParams;
+export default async function ProductSearchPage({ searchParams }: { searchParams: { q?: string; category?: string; minPrice?: string; maxPrice?: string } }) {
+  const { q = '', category = 'all', minPrice = '', maxPrice = '' } = searchParams;
+  const res = await fetch(`${process.env.NEXTAUTH_URL}/api/categories`);
+  const categories = await res.json();
 
   return (
-    <div>
-      <h1>Recherche de Produits</h1>
-      <form action="/search" method="get" className="flex space-x-2 mb-4">
-        <input
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Recherche de Produits</h1>
+      <form action="/search" method="get" className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0 mb-4">
+        <Input
           type="text"
           name="q"
           defaultValue={q}
           placeholder="Rechercher des produits..."
-          className="border p-2 w-full"
+          className="flex-1"
         />
-        <input
-          type="text"
-          name="category"
-          defaultValue={category}
-          placeholder="Catégorie"
-          className="border p-2 w-full"
-        />
-        <input
+        
+        <Select name="category" defaultValue={category}>
+          <SelectTrigger className="flex-1">
+            <SelectValue placeholder="Catégories" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="all">Toutes les catégories</SelectItem>    
+              {categories.map((cat: any, index: number) => (
+                <SelectItem key={index} value={cat.name}>
+                  {cat.name}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+
+        <Input
           type="number"
           name="minPrice"
           defaultValue={minPrice}
           placeholder="Prix minimum"
-          className="border p-2 w-full"
+          className="flex-1"
         />
-        <input
+        <Input
           type="number"
           name="maxPrice"
           defaultValue={maxPrice}
           placeholder="Prix maximum"
-          className="border p-2 w-full"
+          className="flex-1"
         />
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded">
+        <Button variant="default" type="submit" className="w-full sm:w-auto">
           Rechercher
-        </button>
+        </Button>
       </form>
       <ProductSearch searchParams={{ q, category, minPrice, maxPrice }} />
     </div>
