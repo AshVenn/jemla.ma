@@ -5,12 +5,7 @@ export default function Home() {
     <main >
       
           {/* <Login/> */}
-          <HomePage searchParams={{
-        q: undefined,
-        category: undefined,
-        minPrice: undefined,
-        maxPrice: undefined
-      }}/>
+          <HomePage/>
 
     </main>
   );

@@ -1,68 +1,77 @@
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import ProductSearch from '@/components/ProductSearch';
+import Header from './header/header';
+import Link from 'next/link';
+import { FeaturedProductsCarousel } from './products/carousel'; // Adjust the path as needed
 
-export default async function ProductSearchPage({ searchParams }: { searchParams: { q?: string; category?: string; minPrice?: string; maxPrice?: string } }) {
-  const { q = '', category = '', minPrice = '', maxPrice = '' } = searchParams;
-  const categories = await fetch(`${process.env.NEXTAUTH_URL}/api/categories`);
-  
+export default function Home() {
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-extrabold mb-6">Recherche de Produits</h1>
-      <form action="/search" method="get" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
-        <div className="relative">
-          <Input
-            type="text"
-            name="q"
-            defaultValue={q}
-            placeholder="Rechercher des produits..."
-            className="peer h-10 w-full rounded-md border border-gray-300 px-3 py-2 text-gray-700 placeholder-gray-400 focus:border-black focus:outline-none focus:ring-2 focus:ring-black transition-colors"
-          />
-          <label className="absolute left-3 -top-2.5 text-xs text-gray-600 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-gray-600">
-            Rechercher
-          </label>
+    <div className="min-h-screen bg-gray-100">
+      {/* Nav Menu */}
+      <header className="bg-white shadow">
+        <Header />
+      </header>
+
+      {/* Hero Section */}
+      <section 
+        className="bg-cover bg-center h-96 flex items-center justify-center relative overflow-hidden"
+      >
+        <div className="absolute inset-0 bg-gradient-animation"></div>
+        <div className="relative z-10 container mx-auto text-center">
+          <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-white">
+            Bienvenue chez JEMLA.MA
+          </h1>
+          <p className="leading-7 [&:not(:first-child)]:mt-6 text-white">
+            Votre partenaire de confiance pour des produits de qualité en gros.
+          </p>
+          <Button type="button" asChild className="mt-8">
+            <Link href="#produits" className="px-6 py-3 text-lg rounded-none bg-black text-white hover:bg-gray-700">
+              Voir les Produits
+            </Link>
+          </Button>
         </div>
-        <div className="relative">
-          <Input
-            type="text"
-            name="category"
-            defaultValue={category}
-            placeholder="Catégorie"
-            className="peer h-10 w-full rounded-md border border-gray-300 px-3 py-2 text-gray-700 placeholder-gray-400 focus:border-black focus:outline-none focus:ring-2 focus:ring-black transition-colors"
-          />
-          <label className="absolute left-3 -top-2.5 text-xs text-gray-600 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-gray-600">
-            Catégorie
-          </label>
+      </section>
+
+      {/* Featured Products */}
+      <section id="produits" className="container mx-auto py-16">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">Produits Vedettes</h2>
+        <div className="flex justify-center">
+          <FeaturedProductsCarousel />
         </div>
-        <div className="relative">
-          <Input
-            type="number"
-            name="minPrice"
-            defaultValue={minPrice}
-            placeholder="Prix minimum"
-            className="peer h-10 w-full rounded-md border border-gray-300 px-3 py-2 text-gray-700 placeholder-gray-400 focus:border-black focus:outline-none focus:ring-2 focus:ring-black transition-colors"
-          />
-          <label className="absolute left-3 -top-2.5 text-xs text-gray-600 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-gray-600">
-            Prix minimum
-          </label>
+      </section>
+
+      {/* Testimonials */}
+      <section className="bg-gray-100 py-16">
+        <div className="container mx-auto text-center">
+          <h2 className="text-3xl font-bold text-gray-800 mb-12">Témoignages</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <p className="text-gray-600">"Produit de grande qualité, service excellent !"</p>
+              <div className="mt-4 text-gray-700">- Client Satisfait</div>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <p className="text-gray-600">"Livraison rapide et produits conformes à la description."</p>
+              <div className="mt-4 text-gray-700">- Client Heureux</div>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <p className="text-gray-600">"Je recommande fortement NomDuSite pour vos achats en gros."</p>
+              <div className="mt-4 text-gray-700">- Client Fidèle</div>
+            </div>
+          </div>
         </div>
-        <div className="relative">
-          <Input
-            type="number"
-            name="maxPrice"
-            defaultValue={maxPrice}
-            placeholder="Prix maximum"
-            className="peer h-10 w-full rounded-md border border-gray-300 px-3 py-2 text-gray-700 placeholder-gray-400 focus:border-black focus:outline-none focus:ring-2 focus:ring-black transition-colors"
-          />
-          <label className="absolute left-3 -top-2.5 text-xs text-gray-600 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-2 peer-placeholder-shown:left-3 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-gray-600">
-            Prix maximum
-          </label>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white py-6">
+        <div className="container mx-auto text-center">
+          <p>&copy; 2024 JemlaMa. Tous droits réservés.</p>
+          <p>Suivez-nous sur les réseaux sociaux :</p>
+          <div className="flex justify-center space-x-4 mt-4">
+            <a href="#" className="hover:text-gray-400">Facebook</a>
+            <a href="#" className="hover:text-gray-400">Twitter</a>
+            <a href="#" className="hover:text-gray-400">Instagram</a>
+          </div>
         </div>
-        <Button variant="default" type="submit" className="h-10 w-full rounded-md bg-black text-white hover:bg-gray-800 transition-colors">
-          Rechercher
-        </Button>
-      </form>
-      <ProductSearch searchParams={{ q, category, minPrice, maxPrice }} />
+      </footer>
     </div>
   );
 }
