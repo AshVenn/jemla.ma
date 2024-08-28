@@ -4,7 +4,7 @@ import ProductSearch from '@/components/ProductSearch';
 
 export default async function ProductSearchPage({ searchParams }: { searchParams: { q?: string; category?: string; minPrice?: string; maxPrice?: string } }) {
   const { q = '', category = '', minPrice = '', maxPrice = '' } = searchParams;
-  const categories = await fetch('api/categories');
+  const categories = await fetch(`${process.env.NEXTAUTH_URL}/api/categories`);
   
   return (
     <div className="container mx-auto p-4">
