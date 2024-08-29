@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import Link from "next/link";
-import { signIn, useSession } from 'next-auth/react';
+import { signIn, getSession, useSession } from 'next-auth/react';
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,13 +21,13 @@ const formSchema = z.object({
 type FormSchemaType = z.infer<typeof formSchema>;
 
 export default function Login() {
-  const { data: session} = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const [logInError, setLogInError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
-    if (session) {
+    if (session !== undefined && session !== null) {
       const userType = session?.user?.type;
       router.push(`/${userType}/dashboard`);
     }
@@ -52,10 +52,32 @@ export default function Login() {
         setLogInError(res?.error === 'CredentialsSignin' 
           ? "Identifiants incorrects. Veuillez vérifier votre email et mot de passe." 
           : "Une erreur est survenue lors de la connexion. Veuillez réessayer.");
+        setLoading(false); // Stop loading if there's an error
         return;
       }
 
-      // No need to manually handle session, the useEffect will handle the redirect
+      // Fetch session after successful sign-in
+      const session = await getSession();
+
+      // If session exists, handle the redirection manually
+      if (session) {
+        const userType = session.user?.type;
+        switch (userType) {
+          case 'seller':
+            router.push("/seller/dashboard");
+            break;
+          case 'client':
+            router.push("/client/dashboard");
+            break;
+          case 'admin':
+            router.push("/admin/dashboard");
+            break;
+          default:
+            console.log("Type d'utilisateur inconnu:", userType);
+            break;
+        }
+      }
+
     } catch (error) {
       console.error(error);
       setLogInError("Une erreur inattendue est survenue. Veuillez réessayer plus tard.");

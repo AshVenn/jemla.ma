@@ -3,6 +3,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Toaster } from "@/components/ui/toaster"
 import AuthProvider from "./Providers";
+import { ThemeProvider } from "./(cpnotrouted)/theme-provider";
 
 export const metadata = {
   metadataBase: new URL('https://jemla-ma.vercel.app'),
@@ -50,12 +51,19 @@ export default function RootLayout({
         <link rel='icon' href='/jemla.maIcon.svg' type="image/svg+xml" />
       </head>
       <body className="w-full min-h-screen bg-background font-sans antialiased">
+      <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange
+          >
         <AuthProvider session={Session}>
             {children}
             <Toaster/>
             <Analytics />
             <SpeedInsights />
         </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
