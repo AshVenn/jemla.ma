@@ -1,95 +1,125 @@
-'use client'
-
-import React from 'react'
-import { Separator } from '@/components/ui/separator'
-import clsx from 'clsx'
+"use client"
+import Link from "next/link"
 import {
-  LayoutDashboard,
-  Box,
-  ShoppingCart,
+  Home,
+  LineChart,
+  Package,
+  ClipboardList,
   Settings,
-  BarChart3
+  Users2,
 } from "lucide-react"
-import Link from 'next/link'
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { usePathname } from 'next/navigation'
-import JemlaWithText from '@/lib/assets/JemlaWithText'
 
 function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="lg:block hidden border-r h-full">
-      <div className="flex h-full max-h-screen flex-col gap-2 ">
-        <div className="flex h-[55px] items-center justify-between border-b px-3 w-full">
-          <Link className="flex items-center gap-2 font-semibold ml-1" href="/seller/dashboard">
-            <span className=""><JemlaWithText width='140' height='140'/></span>
-          </Link>
-        </div>
-        <div className="flex-1 overflow-auto py-2 ">
-          <nav className="grid items-start px-4 text-sm font-medium">
+    <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
+      <nav className="flex flex-col items-center gap-4 px-2 py-4">
+        <Link
+          href="/admin/dashboard"
+          className={`group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base ${
+            pathname === "/admin/dashboard" ? "bg-accent text-accent-foreground" : ""
+          }`}
+        >
+          <Package className="h-4 w-4 transition-all group-hover:scale-110" />
+          <span className="sr-only">Acme Inc</span>
+        </Link>
+        <Tooltip>
+          <TooltipTrigger asChild>
             <Link
-              className={clsx("flex items-center gap-2 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50", {
-                "flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-gray-900 transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50": pathname === "/seller/dashboard"
-              })}
-              href="/seller/dashboard"
+              href="/admin/dashboard"
+              className={`flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8 ${
+                pathname === "/admin/dashboard" ? "text-foreground" : ""
+              }`}
             >
-              <div className="border rounded-lg dark:bg-black dark:border-gray-800 border-gray-400 p-1 bg-white">
-                <LayoutDashboard className="h-3 w-3" />
-              </div>
-              Dashboard
+              <Home className="h-5 w-5" />
+              <span className="sr-only">Dashboard</span>
             </Link>
+          </TooltipTrigger>
+          <TooltipContent side="right">Dashboard</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
             <Link
-              className={clsx("flex items-center gap-2 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50", {
-                "flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-gray-900 transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50": pathname === "/seller/products"
-              })}
-              href="/seller/products"
+              href="/admin/orders"
+              className={`flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8 ${
+                pathname === "/admin/orders" ? "text-foreground" : ""
+              }`}
             >
-              <div className="border rounded-lg dark:bg-black dark:border-gray-800 border-gray-400 p-1 bg-white">
-                <Box className="h-3 w-3" />
-              </div>
-              Produits
+              <ClipboardList className="h-5 w-5" />
+              <span className="sr-only">Orders</span>
             </Link>
+          </TooltipTrigger>
+          <TooltipContent side="right">Orders</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
             <Link
-              className={clsx("flex items-center gap-2 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50", {
-                "flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-gray-900 transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50": pathname === "/seller/orders"
-              })}
-              href="/seller/orders"
+              href="/admin/products"
+              className={`flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-accent-foreground transition-colors hover:text-foreground md:h-8 md:w-8 ${
+                pathname === "/admin/products" ? "text-foreground" : ""
+              }`}
             >
-              <div className="border rounded-lg dark:bg-black dark:border-gray-800 border-gray-400 p-1 bg-white">
-                <ShoppingCart className="h-3 w-3" />
-              </div>
-              Commandes
+              <Package className="h-5 w-5" />
+              <span className="sr-only">Products</span>
             </Link>
+          </TooltipTrigger>
+          <TooltipContent side="right">Products</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
             <Link
-              className={clsx("flex items-center gap-2 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50", {
-                "flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-gray-900 transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50": pathname === "/seller/analytics"
-              })}
-              href="/seller/analytics"
+              href="/admin/customers"
+              className={`flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8 ${
+                pathname === "/admin/customers" ? "text-foreground" : ""
+              }`}
             >
-              <div className="border rounded-lg dark:bg-black dark:border-gray-800 border-gray-400 p-1 bg-white">
-                <BarChart3 className="h-3 w-3" />
-              </div>
-              Analytique
+              <Users2 className="h-5 w-5" />
+              <span className="sr-only">Customers</span>
             </Link>
-            <Separator className="my-3" />
+          </TooltipTrigger>
+          <TooltipContent side="right">Customers</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
             <Link
-              className={clsx("flex items-center gap-2 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50", {
-                "flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-gray-900 transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50": pathname === "/seller/settings"
-              })}
-              href="/seller/settings"
-              id="onboarding"
+              href="/admin/analytics"
+              className={`flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8 ${
+                pathname === "/admin/analytics" ? "text-foreground" : ""
+              }`}
             >
-              <div className="border rounded-lg dark:bg-black dark:border-gray-800 border-gray-400 p-1 bg-white">
-                <Settings className="h-3 w-3" />
-              </div>
-              Paramètres
+              <LineChart className="h-5 w-5" />
+              <span className="sr-only">Analytics</span>
             </Link>
-          </nav>
-        </div>
-      </div>
-    </div>
+          </TooltipTrigger>
+          <TooltipContent side="right">Analytics</TooltipContent>
+        </Tooltip>
+      </nav>
+      <nav className="mt-auto flex flex-col items-center gap-4 px-2 py-4">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              href="/admin/settings"
+              className={`flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8 ${
+                pathname === "/admin/settings" ? "text-foreground" : ""
+              }`}
+            >
+              <Settings className="h-5 w-5" />
+              <span className="sr-only">Settings</span>
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent side="right">Settings</TooltipContent>
+        </Tooltip>
+      </nav>
+    </aside>
   )
 }
 
 export default AdminSidebar;
-

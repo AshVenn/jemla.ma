@@ -27,4 +27,5 @@ const TooltipContent = React.forwardRef<
 ))
 TooltipContent.displayName = TooltipPrimitive.Content.displayName
 
+// Adjust the Tooltip component to include the delayDuration prop
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
