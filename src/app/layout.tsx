@@ -50,7 +50,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <link rel='icon' href='/jemla.maIcon.svg' type="image/svg+xml" />
       </head>
-      <body className="w-full min-h-screen bg-background font-sans antialiased">
+      <body>
       <ThemeProvider
             attribute="class"
             defaultTheme="light"

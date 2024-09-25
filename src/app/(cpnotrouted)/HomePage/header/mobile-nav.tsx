@@ -16,12 +16,12 @@ import { Button } from '@/components/ui/button';
 export default function MobileNav() {
   return (
     <div className='md:hidden'>
-      <Sheet>
+      <Sheet >
         <SheetTrigger className='p-2 hover:bg-gray-100 focus:outline-none transition duration-200'>
           <Menu className='text-2xl' />
         </SheetTrigger>
         <SheetContent 
-          side="left" 
+          side="right" 
           className='bg-white text-black transition-transform transform-gpu duration-500 ease-out'
         >
           <SheetHeader>
@@ -67,19 +67,16 @@ export default function MobileNav() {
             <Separator />
             <div className='flex justify-between'>
               <Link href='/login'>
-                <Button variant='ghost' type='button' className='text-lg border-b'>
-                  <LogIn />
-                  Connecter
-                </Button>
+              <Button variant="outline" size="sm" className="w-full mt-4">
+                      <LogIn className="h-5 w-5 mr-2" />
+                      Se connecter
+                    </Button>
               </Link>
               <Link href='/register'>
-                <Button 
-                  type='button' 
-                  className='text-lg text-white hover:bg-white hover:text-primary border-b border-white hover:border-primary transition-colors duration-300'
-                >
-                  <UserPlus/>
-                  S'inscrire
-                </Button>
+              <Button variant="outline" size="sm" className="w-full mt-4">
+                      <UserPlus className="h-5 w-5 mr-2" />
+                      S'inscrire
+                    </Button>
               </Link>
             </div>
           </nav>
