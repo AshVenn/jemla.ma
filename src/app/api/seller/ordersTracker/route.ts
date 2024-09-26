@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectMongoDb from '../../../../lib/backend/db/mongodb';
 import { Order, OrderItem } from '../../../../lib/backend/models/models';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     await connectMongoDb();

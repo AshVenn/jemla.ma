@@ -2,6 +2,9 @@ import { NextResponse, NextRequest } from 'next/server';
 import connectMongoDb from '../../../../lib/backend/db/mongodb';
 import { Order, OrderItem, User } from '../../../../lib/backend/models/models';
 
+
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     await connectMongoDb();

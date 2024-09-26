@@ -3,6 +3,9 @@ import { Order, Product, Review } from '@/lib/backend/models/models';
 import connectMongoDB from '@/lib/backend/db/mongodb';
 import mongoose from 'mongoose';
 
+
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     await connectMongoDB();

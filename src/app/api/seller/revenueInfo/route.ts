@@ -3,6 +3,7 @@ import connectMongoDb from '../../../../lib/backend/db/mongodb';
 import { Order } from '../../../../lib/backend/models/models';
 import { Types } from 'mongoose';
 
+export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams;

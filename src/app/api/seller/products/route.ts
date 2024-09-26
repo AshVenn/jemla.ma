@@ -2,7 +2,8 @@ import { NextResponse, NextRequest } from 'next/server';
 import connectMongoDb from '../../../../lib/backend/db/mongodb';
 import { Product, User, Inventory, Order, OrderItem } from '../../../../lib/backend/models/models';
 import { v2 as cloudinary } from 'cloudinary';
-import mongoose from 'mongoose';
+
+export const dynamic = 'force-dynamic';
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,

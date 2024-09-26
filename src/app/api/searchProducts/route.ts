@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectMongoDB from '@/lib/backend/db/mongodb';
 import { Product } from '@/lib/backend/models/models'; 
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const query = searchParams.get('query') || '';

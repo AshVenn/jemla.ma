@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectMongoDb from '@/lib/backend/db/mongodb'; 
 import { Product } from '@/lib/backend/models/models';
 
+export const dynamic = 'force-dynamic';  // This tells Next.js to render dynamically
+
 export async function GET(req: NextRequest) {
   await connectMongoDb();
 
