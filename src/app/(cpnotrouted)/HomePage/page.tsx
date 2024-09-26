@@ -24,12 +24,16 @@ export default async function HomePage() {
               </div>
             </form>
             <Button variant="outline" size="icon" className="hidden md:flex animate-bounce">
+              <Link href="/register">
               <UserPlus className="h-5 w-5" />
               <span className="sr-only">S'inscrire</span>
+              </Link>
             </Button>
             <Button variant="outline" size="icon" className="hidden md:flex">
+              <Link href="/login">
               <LogIn className="h-5 w-5" />
               <span className="sr-only">Se connecter</span>
+              </Link>
             </Button>
             <MobileNav/>
           </div>
@@ -37,16 +41,20 @@ export default async function HomePage() {
       </header>
 
       <main>
-        <section className="relative flex items-center justify-center overflow-hidden">
-          <Image src="/placeholder.svg?text=Grossiste+Moderne" alt="Grossiste Moderne" fill className="absolute inset-0 z-0 object-cover" />
-          <div className="relative z-10 text-center px-4 animate-fade-in-up">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight text-white">Révolutionnez Votre<br />Expérience de Gros</h1>
-            <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto text-white">Commandes simplifiées, prix compétitifs et variété inégalée, le tout en un seul endroit.</p>
-            <Button asChild size="lg" className="bg-white text-black hover:bg-gray-100">
-              <Link href="/products">Explorez les Produits</Link>
-            </Button>
-          </div>
-        </section>
+      <section className="relative flex items-center justify-center overflow-hidden min-h-screen pt-20">
+        <div className="relative z-10 text-center px-4 animate-fade-in-up space-y-8">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight text-black">
+            Révolutionnez Votre<br />Expérience de Gros
+          </h1>
+          <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto text-black">
+            Commandes simplifiées, prix compétitifs et variété inégalée, le tout en un seul endroit.
+          </p>
+          <Button asChild size="lg" className="bg-white text-black hover:bg-gray-100">
+            <Link href="/products">Explorez les Produits</Link>
+          </Button>
+        </div>
+      </section>
+
 
         <section className="py-20 bg-gray-50">
           <FeaturedProductsCarousel/>

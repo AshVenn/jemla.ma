@@ -54,7 +54,7 @@ function SellerRevenueCard({ period }: SellerRevenueCardProps) {
     <Card>
       <CardHeader className="pb-2">
         <CardDescription>{period === 'month' ? 'Ce mois-ci' : 'Cette année'}</CardDescription>
-        <CardTitle className="text-4xl">{`${revenue}€`}</CardTitle>
+        <CardTitle className="text-4xl">{`${revenue}DH`}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="text-xs text-muted-foreground">

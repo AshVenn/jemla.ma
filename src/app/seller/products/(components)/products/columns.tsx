@@ -136,7 +136,7 @@ export const columns: ColumnDef<ProductWithInventory>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ getValue }) => `€${getValue()}`,
+    cell: ({ getValue }) => `DH${getValue()}`,
   },
   {
     accessorKey: "quantity",

@@ -44,7 +44,7 @@ export default function ProductCard({
         />
       </CardContent>
       <CardFooter className="flex flex-col items-center space-y-2 mt-auto">
-        <Badge className="text-sm font-semibold">{basePrice} €</Badge>
+        <Badge className="text-sm font-semibold">{basePrice} DH</Badge>
         <div className="text-sm text-muted-foreground">
           Évaluations: {averageRating}/5 ({numReviews} avis)
         </div>

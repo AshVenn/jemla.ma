@@ -46,7 +46,7 @@ export default function exportOrderToPDF(order: Order) {
   
   // Add order details
   doc.text('Commande:', 14, 70);
-  doc.text(`Montant Total: €${order.totalAmount.toFixed(2)}`, 14, 80);
+  doc.text(`Montant Total: DH${order.totalAmount.toFixed(2)}`, 14, 80);
   doc.text(`Statut: ${orderStatus[order.status]?.label || 'Inconnu'}`, 14, 90);
   doc.text(`Date de création: ${new Date(order.createdAt).toLocaleDateString()}`, 14, 100);
   
@@ -55,7 +55,7 @@ export default function exportOrderToPDF(order: Order) {
   const products = order.items.map((item: OrderItem) => [
     item.productID.name,
     item.quantity,
-    `€${item.price.toFixed(2)}`,
+    `DH${item.price.toFixed(2)}`,
   ]);
   
   doc.autoTable({

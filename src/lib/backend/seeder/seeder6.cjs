@@ -164,7 +164,7 @@ async function seedDatabase() {
     newOrder.totalAmount = totalAmount;
     await newOrder.save();
 
-    console.log('Database seeded successfully with an order of 2700€ for last month');
+    console.log('Database seeded successfully with an order of 2700DH for last month');
   } catch (error) {
     console.error('Error seeding database:', error);
   } finally {

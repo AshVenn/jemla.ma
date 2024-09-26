@@ -18,7 +18,7 @@ function excelExport(data: any[], columns: ColumnWithAccessor[], columnLabels: a
           return value ? 'Oui' : 'Non';
         }
         if (col.accessorKey === 'price') {
-          return `€${value}`;
+          return `DH${value}`;
         }
         return value;
       },

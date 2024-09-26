@@ -64,7 +64,7 @@ export function exportOrderToExcel(order: Order) {
       ],
       content: [
         { 
-          totalAmount: `€${order.totalAmount.toFixed(2)}`,
+          totalAmount: `DH${order.totalAmount.toFixed(2)}`,
           status: orderStatus[order.status]?.label || 'Inconnu',
           createdAt: new Date(order.createdAt).toLocaleDateString()
         }

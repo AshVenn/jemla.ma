@@ -244,7 +244,7 @@ async function seedDatabase() {
       newOrder.paymentID = newPayment._id;
       await newOrder.save();
 
-      console.log(`Created order ${newOrder._id} with a total of ${totalAmount}€ and ${randomProducts.length} products and payment of ${totalAmount}€ via ${randomPaymentMethod}`);
+      console.log(`Created order ${newOrder._id} with a total of ${totalAmount}DH and ${randomProducts.length} products and payment of ${totalAmount}DH via ${randomPaymentMethod}`);
     }
 
     console.log('Database seeded successfully with 3 new shipped orders and payments for client1@example.com.');

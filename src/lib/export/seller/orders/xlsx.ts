@@ -18,7 +18,7 @@ function excelExportOrders(data: any[], columns: ColumnWithAccessor[], columnLab
           return `${value.firstName} ${value.lastName}`;
         }
         if (col.accessorKey === 'totalAmount') {
-          return `€${value.toFixed(2)}`;
+          return `DH${value.toFixed(2)}`;
         }
         if (col.accessorKey === 'status') {
           return orderStatus[value]?.label || value;

@@ -136,7 +136,7 @@ function SellerOrderTracker() {
                       <span className="text-muted-foreground">
                         {item.productID.name} x <span>{item.quantity}</span>
                       </span>
-                      <span>€{item.productID.basePrice}</span>
+                      <span>DH{item.productID.basePrice}</span>
                     </li>
                   ))}
                 </ul>
@@ -144,7 +144,7 @@ function SellerOrderTracker() {
                 <ul className="grid gap-3">
                   <li className="flex items-center justify-between">
                     <span className="text-muted-foreground">Sous-total</span>
-                    <span>€{order.totalAmount.toFixed(2)}</span>
+                    <span>DH{order.totalAmount.toFixed(2)}</span>
                   </li>
                 </ul>
               </div>

@@ -68,7 +68,7 @@ export function OrderDetails({ order }:any) {
           <div>
             <h3 className="scroll-m-10 text-2xl font-semibold tracking-tight mt-2">Commande</h3>
             <p className="mt-2">
-              <span className="border-l-2 pl-6 italic">Montant Total: €</span>{order.totalAmount.toFixed(2)}
+              <span className="border-l-2 pl-6 italic">Montant Total: DH</span>{order.totalAmount.toFixed(2)}
             </p>
             <p>
               <span className="border-l-2 pl-6 italic">Statut:</span> <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
@@ -83,7 +83,7 @@ export function OrderDetails({ order }:any) {
                 <li key={index}>
                   <p className="leading-7 [&:not(:first-child)]">Produit: {item.productID.name}</p>
                   <p className="leading-7 [&:not(:first-child)]">Quantité: {item.quantity}</p>
-                  <p className="leading-7 [&:not(:first-child)]">Prix: €{item.price.toFixed(2)}</p>
+                  <p className="leading-7 [&:not(:first-child)]">Prix: DH{item.price.toFixed(2)}</p>
                 </li>
               ))}
             </ul>

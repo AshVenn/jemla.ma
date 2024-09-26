@@ -57,7 +57,7 @@ export const columns: ColumnDef<Order>[] = [
         {columnLabels["totalAmount"]} <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ getValue }) => `€${(getValue() as number).toFixed(2)}`, // Format as currency
+    cell: ({ getValue }) => `DH${(getValue() as number).toFixed(2)}`, // Format as currency
   },
   {
     accessorKey: "status",
